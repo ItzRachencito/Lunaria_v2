@@ -2,9 +2,10 @@ import './Item.css';
 import {useContext} from "react";
 import {AppContext} from "../../context/AppContext.jsx";
 
-const Item = ({itemName, itemPrice, itemImage, itemId}) => {
+const Item = ({itemName, itemPrice, itemImage, itemId, onItemClick}) => {
     const {addToCart} = useContext(AppContext);
-    const handleAddToCart = () => {
+    const handleAddToCart = (e) => {
+        e.stopPropagation(); // Prevent triggering the card click
         addToCart({
             name: itemName,
             price: itemPrice,
@@ -12,8 +13,15 @@ const Item = ({itemName, itemPrice, itemImage, itemId}) => {
             itemId: itemId
         });
     }
+
+    const handleCardClick = () => {
+        if (onItemClick) {
+            onItemClick();
+        }
+    }
+
     return (
-        <div className="p-3 bg-dark rounded shadow-sm h-100 d-flex align-items-center item-card">
+        <div className="p-3 bg-dark rounded shadow-sm h-100 d-flex align-items-center item-card" onClick={handleCardClick} style={{cursor: 'pointer'}}>
             <div style={{position: "relative", marginRight: "15px"}}>
                 <img src={itemImage} alt={itemName} className="item-image" />
             </div>

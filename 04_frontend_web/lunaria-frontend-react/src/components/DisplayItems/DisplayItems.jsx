@@ -5,13 +5,37 @@ import Item from "../Item/Item.jsx";
 import SearchBox from "../SearchBox/SearchBox.jsx";
 
 const DisplayItems = ({selectedCategory}) => {
-    const {itemsData} = useContext(AppContext);
+    const {itemsData, addToCart} = useContext(AppContext);
     const [searchText, setSearchText] = useState("");
+    const [showItemModal, setShowItemModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     const filteredItems = itemsData.filter(item => {
         if(!selectedCategory) return true;
         return item.categoryId === selectedCategory;
     }).filter(item => item.name.toLowerCase().includes(searchText.toLowerCase()));
+
+    const handleItemClick = (item) => {
+        setSelectedItem(item);
+        setShowItemModal(true);
+    }
+
+    const closeItemModal = () => {
+        setShowItemModal(false);
+        setSelectedItem(null);
+    }
+
+    const handleAddToCartFromModal = () => {
+        if (selectedItem) {
+            addToCart({
+                name: selectedItem.name,
+                price: selectedItem.price,
+                quantity: 1,
+                itemId: selectedItem.itemId
+            });
+            closeItemModal(); // Close modal after adding to cart
+        }
+    }
 
     return (
         <div className="p-3">
@@ -29,10 +53,85 @@ const DisplayItems = ({selectedCategory}) => {
                             itemPrice={item.price}
                             itemImage={item.imgUrl}
                             itemId={item.itemId}
+                            onItemClick={() => handleItemClick(item)}
                         />
                     </div>
                 ))}
             </div>
+
+            {/* Item Details Modal */}
+            {showItemModal && selectedItem && (
+                <div className="modal show d-block" style={{backgroundColor: 'rgba(0,0,0,0.8)'}}>
+                    <div className="modal-dialog modal-lg">
+                        <div className="modal-content bg-dark text-light">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Detalles del Producto</h5>
+                                <button type="button" className="btn-close btn-close-white" onClick={closeItemModal}></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="row">
+                                    <div className="col-md-6">
+                                        <img
+                                            src={selectedItem.imgUrl}
+                                            alt={selectedItem.name}
+                                            className="img-fluid rounded"
+                                            style={{maxHeight: '300px', width: '100%', objectFit: 'cover'}}
+                                        />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <h3 className="text-warning mb-3">{selectedItem.name}</h3>
+
+                                        <div className="mb-3">
+                                            <h4 className="text-success">${selectedItem.price}</h4>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <strong>Categoría:</strong>
+                                            <p className="text-light">{selectedItem.categoryName}</p>
+                                        </div>
+
+                                        {selectedItem.brandName && (
+                                            <div className="mb-3">
+                                                <strong>Marca:</strong>
+                                                <p className="text-light">{selectedItem.brandName}</p>
+                                            </div>
+                                        )}
+
+                                        <div className="mb-3">
+                                            <strong>Stock Disponible:</strong>
+                                            <p className={`mb-0 ${selectedItem.stockQuantity > 10 ? 'text-success' : selectedItem.stockQuantity > 0 ? 'text-warning' : 'text-danger'}`}>
+                                                {selectedItem.stockQuantity} unidades
+                                            </p>
+                                            <small className="text-muted">
+                                                Estado: {selectedItem.stockStatus === 'IN_STOCK' ? 'En Stock' :
+                                                        selectedItem.stockStatus === 'LOW_STOCK' ? 'Stock Bajo' : 'Sin Stock'}
+                                            </small>
+                                        </div>
+
+                                        {selectedItem.description && (
+                                            <div className="mb-3">
+                                                <strong>Descripción:</strong>
+                                                <p className="text-light">{selectedItem.description}</p>
+                                            </div>
+                                        )}
+
+                                        <div className="mb-3">
+                                            <strong>ID del Producto:</strong>
+                                            <p className="text-muted small">{selectedItem.itemId}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-success" onClick={handleAddToCartFromModal}>
+                                    <i className="bi bi-cart-plus me-2"></i>
+                                    Agregar al carrito
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
