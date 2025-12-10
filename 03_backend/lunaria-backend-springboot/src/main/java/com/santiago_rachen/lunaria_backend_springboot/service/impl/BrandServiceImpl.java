@@ -35,6 +35,23 @@ public class BrandServiceImpl implements com.santiago_rachen.lunaria_backend_spr
     }
 
     @Override
+    public BrandResponse update(String brandId, BrandRequest request) {
+        BrandEntity existingBrand = brandRepository.findByBrandId(brandId)
+                .orElseThrow(() -> new RuntimeException("Brand not found: " + brandId));
+
+        // Update fields
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            existingBrand.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            existingBrand.setDescription(request.getDescription());
+        }
+
+        existingBrand = brandRepository.save(existingBrand);
+        return convertToResponse(existingBrand);
+    }
+
+    @Override
     public void delete(String brandId) {
         BrandEntity existingBrand = brandRepository.findByBrandId(brandId)
                 .orElseThrow(() -> new RuntimeException("Brand not found: "+brandId));

@@ -53,6 +53,26 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public CategoryResponse update(String categoryId, CategoryRequest request) {
+        CategoryEntity existingCategory = categoryRepository.findByCategoryId(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId));
+
+        // Update fields
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            existingCategory.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            existingCategory.setDescription(request.getDescription());
+        }
+        if (request.getBgColor() != null && !request.getBgColor().trim().isEmpty()) {
+            existingCategory.setBgColor(request.getBgColor());
+        }
+
+        existingCategory = categoryRepository.save(existingCategory);
+        return convertToResponse(existingCategory);
+    }
+
+    @Override
     public void delete(String categoryId) {
         CategoryEntity existingCategory = categoryRepository.findByCategoryId(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found: "+categoryId));

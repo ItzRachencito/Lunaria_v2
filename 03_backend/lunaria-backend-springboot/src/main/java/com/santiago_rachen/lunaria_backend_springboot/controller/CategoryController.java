@@ -43,6 +43,15 @@ public class CategoryController {
         return categoryService.read();
     }
 
+    @PutMapping("/admin/categories/{categoryId}")
+    public CategoryResponse updateCategory(@PathVariable String categoryId, @RequestBody CategoryRequest request) {
+        try {
+            return categoryService.update(categoryId, request);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/admin/categories/{categoryId}")
     public void remove(@PathVariable String categoryId) {

@@ -11,5 +11,7 @@ public interface BrandService {
 
     List<BrandResponse> read();
 
+    BrandResponse update(String brandId, BrandRequest request);
+
     void delete(String brandId);
 }

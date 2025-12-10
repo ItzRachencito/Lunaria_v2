@@ -26,6 +26,15 @@ public class BrandController {
         return brandService.read();
     }
 
+    @PutMapping("/admin/brands/{brandId}")
+    public BrandResponse updateBrand(@PathVariable String brandId, @RequestBody BrandRequest request) {
+        try {
+            return brandService.update(brandId, request);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to update brand: " + e.getMessage());
+        }
+    }
+
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/admin/brands/{brandId}")
     public void remove(@PathVariable String brandId) {

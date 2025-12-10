@@ -13,5 +13,7 @@ public interface CategoryService {
 
     List<CategoryResponse> read();
 
+    CategoryResponse update(String categoryId, CategoryRequest request);
+
     void delete(String categoryId);
 }
