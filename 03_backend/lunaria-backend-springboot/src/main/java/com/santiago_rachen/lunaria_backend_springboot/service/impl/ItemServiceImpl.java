@@ -98,6 +98,47 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public ItemResponse updateItem(String itemId, ItemRequest request) {
+        ItemEntity existingItem = itemRepository.findByItemId(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found: " + itemId));
+
+        // Update fields
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            existingItem.setName(request.getName());
+        }
+        if (request.getPrice() != null) {
+            existingItem.setPrice(request.getPrice());
+        }
+        if (request.getDescription() != null) {
+            existingItem.setDescription(request.getDescription());
+        }
+        if (request.getStockQuantity() != null) {
+            existingItem.setStockQuantity(request.getStockQuantity());
+        }
+
+        // Update category if provided
+        if (request.getCategoryId() != null && !request.getCategoryId().trim().isEmpty()) {
+            CategoryEntity existingCategory = categoryRepository.findByCategoryId(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found: " + request.getCategoryId()));
+            existingItem.setCategory(existingCategory);
+        }
+
+        // Update brand if provided
+        if (request.getBrandId() != null) {
+            if (request.getBrandId().trim().isEmpty()) {
+                existingItem.setBrand(null); // Remove brand
+            } else {
+                BrandEntity existingBrand = brandRepository.findByBrandId(request.getBrandId())
+                        .orElseThrow(() -> new RuntimeException("Brand not found: " + request.getBrandId()));
+                existingItem.setBrand(existingBrand);
+            }
+        }
+
+        existingItem = itemRepository.save(existingItem);
+        return convertToResponse(existingItem);
+    }
+
+    @Override
     public void deleteItem(String itemId) {
         ItemEntity existingItem = itemRepository.findByItemId(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found: "+itemId));

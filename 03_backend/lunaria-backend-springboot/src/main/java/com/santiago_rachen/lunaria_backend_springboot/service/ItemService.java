@@ -13,5 +13,7 @@ public interface ItemService {
 
     List<ItemResponse> fetchItems();
 
+    ItemResponse updateItem(String itemId, ItemRequest request);
+
     void deleteItem(String itemId);
 }

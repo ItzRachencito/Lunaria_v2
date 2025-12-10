@@ -39,6 +39,15 @@ public class ItemController {
         return itemService.fetchItems();
     }
 
+    @PutMapping("/admin/items/{itemId}")
+    public ItemResponse updateItem(@PathVariable String itemId, @RequestBody ItemRequest request) {
+        try {
+            return itemService.updateItem(itemId, request);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/admin/items/{itemId}")
     public void removeItem(@PathVariable String itemId) {

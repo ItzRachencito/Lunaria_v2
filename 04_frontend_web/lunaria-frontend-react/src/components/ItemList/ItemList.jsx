@@ -1,17 +1,25 @@
 import {useContext, useState} from "react";
 import {AppContext} from "../../context/AppContext.jsx";
-import {deleteItem} from "../../Service/ItemService.js";
+import {deleteItem, updateItem} from "../../Service/ItemService.js";
 import {adjustStock} from "../../Service/StockService.js";
 import toast from "react-hot-toast";
 import './ItemList.css';
 
 const ItemList = () => {
-    const {itemsData, setItemsData, refreshItems} = useContext(AppContext);
+    const {itemsData, setItemsData, refreshItems, categories, brands} = useContext(AppContext);
     const [searchTerm, setSearchTerm] = useState("");
     const [showStockModal, setShowStockModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [newStock, setNewStock] = useState(0);
     const [adjustmentReason, setAdjustmentReason] = useState("");
+    const [editData, setEditData] = useState({
+        name: "",
+        categoryId: "",
+        brandId: "",
+        price: "",
+        description: ""
+    });
 
     const filteredItems = itemsData.filter((item) => {
         return item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -44,6 +52,23 @@ const ItemList = () => {
         setSelectedItem(null);
     }
 
+    const openEditModal = (item) => {
+        setSelectedItem(item);
+        setEditData({
+            name: item.name,
+            categoryId: item.categoryId,
+            brandId: item.brandId || "",
+            price: item.price,
+            description: item.description
+        });
+        setShowEditModal(true);
+    }
+
+    const closeEditModal = () => {
+        setShowEditModal(false);
+        setSelectedItem(null);
+    }
+
     const handleStockAdjustment = async () => {
         if (!selectedItem || !adjustmentReason.trim()) {
             toast.error("Please provide a reason for the adjustment");
@@ -63,6 +88,32 @@ const ItemList = () => {
             console.error(error);
             toast.error("Error adjusting stock");
         }
+    }
+
+    const handleEdit = async () => {
+        if (!selectedItem) {
+            toast.error("No item selected");
+            return;
+        }
+
+        try {
+            const response = await updateItem(selectedItem.itemId, editData);
+            if (response.status === 200) {
+                await refreshItems();
+                toast.success("Item updated successfully");
+                closeEditModal();
+            } else {
+                toast.error("Failed to update item");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Error updating item");
+        }
+    }
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditData(prev => ({ ...prev, [name]: value }));
     }
 
     return (
@@ -103,6 +154,9 @@ const ItemList = () => {
                                     </p>
                                 </div>
                                 <div className="d-flex gap-1">
+                                    <button className="btn btn-primary btn-sm" onClick={() => openEditModal(item)} title="Edit Item">
+                                        <i className="bi bi-pencil"></i>
+                                    </button>
                                     <button className="btn btn-warning btn-sm" onClick={() => openStockModal(item)} title="Adjust Stock">
                                         <i className="bi bi-plus-circle"></i>
                                     </button>
@@ -156,6 +210,98 @@ const ItemList = () => {
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={closeStockModal}>Cancel</button>
                                 <button type="button" className="btn btn-primary" onClick={handleStockAdjustment}>Adjust Stock</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Item Modal */}
+            {showEditModal && selectedItem && (
+                <div className="modal show d-block" style={{backgroundColor: 'rgba(0,0,0,0.5)'}}>
+                    <div className="modal-dialog modal-lg">
+                        <div className="modal-content bg-dark text-light">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Edit Item - {selectedItem.name}</h5>
+                                <button type="button" className="btn-close btn-close-white" onClick={closeEditModal}></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="row">
+                                    <div className="col-md-6 mb-3">
+                                        <label htmlFor="editName" className="form-label">Name</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="editName"
+                                            name="name"
+                                            value={editData.name}
+                                            onChange={handleEditChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label htmlFor="editPrice" className="form-label">Price</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            id="editPrice"
+                                            name="price"
+                                            value={editData.price}
+                                            onChange={handleEditChange}
+                                            step="0.01"
+                                            min="0"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-md-6 mb-3">
+                                        <label htmlFor="editCategory" className="form-label">Category</label>
+                                        <select
+                                            className="form-control"
+                                            id="editCategory"
+                                            name="categoryId"
+                                            value={editData.categoryId}
+                                            onChange={handleEditChange}
+                                            required
+                                        >
+                                            <option value="">--Select Category--</option>
+                                            {categories.map((category, index) => (
+                                                <option key={index} value={category.categoryId}>{category.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label htmlFor="editBrand" className="form-label">Brand</label>
+                                        <select
+                                            className="form-control"
+                                            id="editBrand"
+                                            name="brandId"
+                                            value={editData.brandId}
+                                            onChange={handleEditChange}
+                                        >
+                                            <option value="">--No Brand--</option>
+                                            {brands.map((brand, index) => (
+                                                <option key={index} value={brand.brandId}>{brand.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="editDescription" className="form-label">Description</label>
+                                    <textarea
+                                        className="form-control"
+                                        id="editDescription"
+                                        name="description"
+                                        rows="3"
+                                        value={editData.description}
+                                        onChange={handleEditChange}
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={closeEditModal}>Cancel</button>
+                                <button type="button" className="btn btn-primary" onClick={handleEdit}>Update Item</button>
                             </div>
                         </div>
                     </div>
