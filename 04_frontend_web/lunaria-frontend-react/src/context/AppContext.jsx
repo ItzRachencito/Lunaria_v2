@@ -39,17 +39,33 @@ export const AppContextProvider = (props) => {
                     localStorage.getItem("role")
                 );
             }
-            const response = await fetchCategories();
-            const brandResponse = await fetchBrands();
-            const itemResponse = await fetchItems();
-            console.log('item response', itemResponse);
-            setCategories(response.data);
-            setBrands(brandResponse.data);
-            setItemsData(itemResponse.data);
-
         }
         loadData();
     }, []);
+
+    useEffect(() => {
+        async function loadAuthenticatedData() {
+            if (auth.token) {
+                try {
+                    const response = await fetchCategories();
+                    const brandResponse = await fetchBrands();
+                    const itemResponse = await fetchItems();
+                    console.log('item response', itemResponse);
+                    setCategories(response.data);
+                    setBrands(brandResponse.data);
+                    setItemsData(itemResponse.data);
+                } catch (error) {
+                    console.error("Error loading authenticated data:", error);
+                }
+            } else {
+                // Clear data when not authenticated
+                setCategories([]);
+                setBrands([]);
+                setItemsData([]);
+            }
+        }
+        loadAuthenticatedData();
+    }, [auth.token]);
 
     const setAuthData = (token, role) => {
         setAuth({token, role});
