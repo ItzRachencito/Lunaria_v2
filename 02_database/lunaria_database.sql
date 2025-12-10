@@ -23,6 +23,25 @@ use lunaria_database;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `tbl_brand`
+--
+
+DROP TABLE IF EXISTS `tbl_brand`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_brand` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `brand_id` varchar(255) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_brand_id` (`brand_id`),
+  UNIQUE KEY `UK_brand_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 -- Table structure for table `tbl_category`
 --
 
@@ -62,10 +81,13 @@ CREATE TABLE `tbl_items` (
   `stock_quantity` int NOT NULL DEFAULT '0',
   `updated_at` datetime(6) DEFAULT NULL,
   `category_id` bigint NOT NULL,
+  `brand_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKbbx9gl7bt5u3ktguqkw59ehhf` (`item_id`),
   KEY `FKrxxi38a9m21eltievg2qhhk2n` (`category_id`),
-  CONSTRAINT `FKrxxi38a9m21eltievg2qhhk2n` FOREIGN KEY (`category_id`) REFERENCES `tbl_category` (`id`) ON DELETE RESTRICT
+  KEY `FK_brand_items` (`brand_id`),
+  CONSTRAINT `FKrxxi38a9m21eltievg2qhhk2n` FOREIGN KEY (`category_id`) REFERENCES `tbl_category` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_brand_items` FOREIGN KEY (`brand_id`) REFERENCES `tbl_brand` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

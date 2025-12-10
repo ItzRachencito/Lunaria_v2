@@ -5,12 +5,13 @@ import toast from "react-hot-toast";
 import {addItem} from "../../Service/ItemService.js";
 
 const ItemForm = () => {
-    const {categories, setItemsData, itemsData, setCategories, refreshItems} = useContext(AppContext);
+    const {categories, brands, setItemsData, itemsData, setCategories, refreshItems} = useContext(AppContext);
     const [image, setImage] = useState(false);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({
         name: "",
         categoryId: "",
+        brandId: "",
         price: "",
         description: "",
         stockQuantity: 0,
@@ -45,6 +46,7 @@ const ItemForm = () => {
                     description: "",
                     price: "",
                     categoryId: "",
+                    brandId: "",
                     stockQuantity: 0,
                 })
                 setImage(false);
@@ -92,6 +94,17 @@ const ItemForm = () => {
                                         <option value="">--Selecciona la categoría--</option>
                                         {categories.map((category, index) => (
                                             <option key={index} value={category.categoryId}>{category.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label" htmlFor="brand">
+                                        Marca
+                                    </label>
+                                    <select name="brandId" id="brand" className="form-control" onChange={onChangeHandler} value={data.brandId}>
+                                        <option value="">--Selecciona la marca (opcional)--</option>
+                                        {brands.map((brand, index) => (
+                                            <option key={index} value={brand.brandId}>{brand.name}</option>
                                         ))}
                                     </select>
                                 </div>

@@ -1,5 +1,6 @@
 import {createContext, useEffect, useState} from "react";
 import {fetchCategories} from "../Service/CategoryService.js";
+import {fetchBrands} from "../Service/BrandService.js";
 import {fetchItems} from "../Service/ItemService.js";
 import toast from "react-hot-toast";
 
@@ -8,6 +9,7 @@ export const AppContext = createContext(null);
 export const AppContextProvider = (props) => {
 
     const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
     const [itemsData, setItemsData] = useState([]);
     const [auth, setAuth] = useState({token: null, role: null});
     const [cartItems, setCartItems] = useState([]);
@@ -38,9 +40,11 @@ export const AppContextProvider = (props) => {
                 );
             }
             const response = await fetchCategories();
+            const brandResponse = await fetchBrands();
             const itemResponse = await fetchItems();
             console.log('item response', itemResponse);
             setCategories(response.data);
+            setBrands(brandResponse.data);
             setItemsData(itemResponse.data);
 
         }
@@ -68,6 +72,8 @@ export const AppContextProvider = (props) => {
     const contextValue = {
         categories,
         setCategories,
+        brands,
+        setBrands,
         auth,
         setAuthData,
         itemsData,

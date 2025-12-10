@@ -5,18 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class ItemRequest {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class BrandRequest {
 
     private String name;
-    private BigDecimal price;
-    private String categoryId;
-    private String brandId;
     private String description;
-    private Integer stockQuantity;
+
 }

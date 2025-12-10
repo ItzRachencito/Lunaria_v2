@@ -2,6 +2,7 @@ import Menubar from "./components/Menubar/Menubar.jsx";
 import {Navigate, Route, Routes, useLocation} from "react-router-dom";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import ManageCategory from "./pages/ManageCategory/ManageCategory.jsx";
+import ManageBrand from "./pages/ManageBrand/ManageBrand.jsx";
 import ManageUsers from "./pages/ManageUsers/ManageUsers.jsx";
 import ManageItems from "./pages/ManageItems/ManageItems.jsx";
 import ManageStock from "./pages/ManageStock/ManageStock.jsx";
@@ -45,6 +46,7 @@ const App = () => {
                 <Route path="/explore" element={<Explore />} />
                 {/*Admin only routes*/}
                 <Route path="/category" element={<ProtectedRoute element={<ManageCategory />} allowedRoles={['ROLE_ADMIN']} />} />
+                <Route path="/brand" element={<ProtectedRoute element={<ManageBrand />} allowedRoles={['ROLE_ADMIN']} />} />
                 <Route path="/users" element={<ProtectedRoute element={<ManageUsers />} allowedRoles={["ROLE_ADMIN"]} />} />
                 <Route path="/items" element={<ProtectedRoute element={<ManageItems />} allowedRoles={["ROLE_ADMIN"]} /> } />
                 <Route path="/stock" element={<ProtectedRoute element={<ManageStock />} allowedRoles={["ROLE_ADMIN"]} /> } />

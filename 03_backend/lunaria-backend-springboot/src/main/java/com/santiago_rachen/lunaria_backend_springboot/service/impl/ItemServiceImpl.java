@@ -1,9 +1,11 @@
 package com.santiago_rachen.lunaria_backend_springboot.service.impl;
 
+import com.santiago_rachen.lunaria_backend_springboot.entity.BrandEntity;
 import com.santiago_rachen.lunaria_backend_springboot.entity.CategoryEntity;
 import com.santiago_rachen.lunaria_backend_springboot.entity.ItemEntity;
 import com.santiago_rachen.lunaria_backend_springboot.io.ItemRequest;
 import com.santiago_rachen.lunaria_backend_springboot.io.ItemResponse;
+import com.santiago_rachen.lunaria_backend_springboot.repository.BrandRepository;
 import com.santiago_rachen.lunaria_backend_springboot.repository.CategoryRepository;
 import com.santiago_rachen.lunaria_backend_springboot.repository.ItemRepository;
 import com.santiago_rachen.lunaria_backend_springboot.service.FileUploadService;
@@ -30,6 +32,7 @@ public class ItemServiceImpl implements ItemService {
 
     private final FileUploadService fileUploadService;
     private final CategoryRepository categoryRepository;
+    private final BrandRepository brandRepository;
     private final ItemRepository itemRepository;
 
     @Override
@@ -45,6 +48,13 @@ public class ItemServiceImpl implements ItemService {
         CategoryEntity existingCategory = categoryRepository.findByCategoryId(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found: "+request.getCategoryId()));
         newItem.setCategory(existingCategory);
+
+        if (request.getBrandId() != null && !request.getBrandId().isEmpty()) {
+            BrandEntity existingBrand = brandRepository.findByBrandId(request.getBrandId())
+                    .orElseThrow(() -> new RuntimeException("Brand not found: "+request.getBrandId()));
+            newItem.setBrand(existingBrand);
+        }
+
         newItem.setImgUrl(imgUrl);
         newItem = itemRepository.save(newItem);
         return convertToResponse(newItem);
@@ -60,6 +70,8 @@ public class ItemServiceImpl implements ItemService {
                 .imgUrl(newItem.getImgUrl())
                 .categoryName(newItem.getCategory().getName())
                 .categoryId(newItem.getCategory().getCategoryId())
+                .brandName(newItem.getBrand() != null ? newItem.getBrand().getName() : null)
+                .brandId(newItem.getBrand() != null ? newItem.getBrand().getBrandId() : null)
                 .createdAt(newItem.getCreatedAt())
                 .updatedAt(newItem.getUpdatedAt())
                 .stockQuantity(newItem.getStock())

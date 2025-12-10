@@ -1,0 +1,14 @@
+.brand-list-container {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.brand-card {
+    max-width: 100% !important;
+    background-color: #495057;
+    border: 1px solid #6c757d;
+}
+
+.brand-card:hover {
+    background-color: #5a6268;
+}

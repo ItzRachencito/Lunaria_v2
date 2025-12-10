@@ -14,6 +14,8 @@ public interface ItemRepository extends JpaRepository<ItemEntity, Long> {
 
     Integer countByCategoryId(Long id);
 
+    Integer countByBrandId(Long id);
+
     @Query("SELECT i FROM ItemEntity i WHERE i.stockQuantity <= 10 AND i.stockQuantity > 0")
     List<ItemEntity> findLowStockProducts();
 

@@ -52,6 +52,11 @@ public class ItemEntity {
     @OnDelete(action = OnDeleteAction.RESTRICT)
     private CategoryEntity category;
 
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private BrandEntity brand;
+
     // Métodos para gestión de stock
     public Integer getStock() {
         return stockQuantity;
