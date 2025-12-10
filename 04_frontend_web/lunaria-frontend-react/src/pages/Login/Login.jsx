@@ -71,6 +71,14 @@ const Login = () => {
                             </div>
                         </form>
                     </div>
+                    <div className="text-center mt-3">
+                        <p className="mb-0">
+                            ¿No tienes cuenta?{" "}
+                            <a href="#" onClick={() => navigate("/register")} className="text-decoration-none">
+                                Regístrate aquí
+                            </a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

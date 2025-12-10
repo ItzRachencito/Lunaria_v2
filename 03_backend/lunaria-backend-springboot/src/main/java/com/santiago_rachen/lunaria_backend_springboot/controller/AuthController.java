@@ -2,6 +2,8 @@ package com.santiago_rachen.lunaria_backend_springboot.controller;
 
 import com.santiago_rachen.lunaria_backend_springboot.io.AuthRequest;
 import com.santiago_rachen.lunaria_backend_springboot.io.AuthResponse;
+import com.santiago_rachen.lunaria_backend_springboot.io.UserRequest;
+import com.santiago_rachen.lunaria_backend_springboot.io.UserResponse;
 import com.santiago_rachen.lunaria_backend_springboot.service.UserService;
 import com.santiago_rachen.lunaria_backend_springboot.service.impl.AppUserDetailsService;
 import com.santiago_rachen.lunaria_backend_springboot.util.JwtUtil;
@@ -15,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -48,6 +51,16 @@ public class AuthController {
             throw new Exception("User disabled");
         }catch (BadCredentialsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email or password is incorrect");
+        }
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse register(@RequestBody UserRequest request) {
+        try {
+            return userService.createUser(request);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to create user: " + e.getMessage());
         }
     }
 

@@ -9,6 +9,7 @@ import ManageStock from "./pages/ManageStock/ManageStock.jsx";
 import Explore from "./pages/Explore/Explore.jsx";
 import {Toaster} from "react-hot-toast";
 import Login from "./pages/Login/Login.jsx";
+import Register from "./pages/Register/Register.jsx";
 import OrderHistory from "./pages/OrderHistory/OrderHistory.jsx";
 import {useContext} from "react";
 import {AppContext} from "./context/AppContext.jsx";
@@ -39,7 +40,7 @@ const App = () => {
 
     return (
         <div>
-            {location.pathname !== "/login" && location.pathname !== '/' && <Menubar />}
+            {location.pathname !== "/login" && location.pathname !== "/register" && location.pathname !== '/' && <Menubar />}
             <Toaster />
             <Routes>
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -52,6 +53,7 @@ const App = () => {
                 <Route path="/stock" element={<ProtectedRoute element={<ManageStock />} allowedRoles={["ROLE_ADMIN"]} /> } />
 
                 <Route path="/login" element={<LoginRoute element={<Login />} />} />
+                <Route path="/register" element={<LoginRoute element={<Register />} />} />
                 <Route path="/orders" element={<OrderHistory />} />
                 <Route path="/" element={<Login />} />
                 <Route path="*" element={<NotFound />} />
