@@ -69,6 +69,16 @@ export const AppContextProvider = (props) => {
         }
     }
 
+    const refreshBrands = async () => {
+        try {
+            const brandResponse = await fetchBrands();
+            setBrands(brandResponse.data);
+        } catch (error) {
+            console.error("Error refreshing brands:", error);
+            toast.error("Error updating brands");
+        }
+    }
+
     const contextValue = {
         categories,
         setCategories,
@@ -83,7 +93,8 @@ export const AppContextProvider = (props) => {
         removeFromCart,
         updateQuantity,
         clearCart,
-        refreshItems
+        refreshItems,
+        refreshBrands
     }
 
     return <AppContext.Provider value={contextValue}>

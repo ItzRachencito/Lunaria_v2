@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import {addItem} from "../../Service/ItemService.js";
 
 const ItemForm = () => {
-    const {categories, brands, setItemsData, itemsData, setCategories, refreshItems} = useContext(AppContext);
+    const {categories, brands, setItemsData, itemsData, setCategories, refreshItems, refreshBrands} = useContext(AppContext);
     const [image, setImage] = useState(false);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({
@@ -38,6 +38,7 @@ const ItemForm = () => {
             const response = await addItem(formData);
             if (response.status === 201) {
                 await refreshItems(); // Refresh items to show updated data
+                await refreshBrands(); // Refresh brands to update item counts
                 setCategories((prevCategories) =>
                 prevCategories.map((category) => category.categoryId === data.categoryId ? {...category, items: category.items + 1} : category));
                 toast.success("Item added");

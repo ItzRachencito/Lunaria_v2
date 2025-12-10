@@ -48,10 +48,11 @@ const BrandList = () => {
             <div className="row g-3 pe-2">
                 {filteredBrands.map((brand, index) => (
                     <div key={index} className="col-12">
-                        <div className="card p-3 brand-card">
+                        <div className="card p-3 bg-dark brand-card">
                             <div className="d-flex align-items-center">
                                 <div className="flex-grow-1">
                                     <h5 className="mb-1 text-white">{brand.name}</h5>
+                                    <p className="mb-2 text-white-50 small">{brand.description}</p>
                                     <p className="mb-0 text-white">{brand.items} Items</p>
                                 </div>
                                 <div>

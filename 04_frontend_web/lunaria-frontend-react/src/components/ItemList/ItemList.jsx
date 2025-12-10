@@ -93,7 +93,7 @@ const ItemList = () => {
                                 <div className="flex-grow-1">
                                     <h6 className="mb-1 text-white">{item.name}</h6>
                                     <p className="mb-0 text-white">
-                                        Categoría: {item.categoryName}
+                                        Categoría: {item.categoryName} {item.brandName ? `| Marca: ${item.brandName}` : ''}
                                     </p>
                                     <span className="mb-0 text-block badge rounded-pill text-bg-warning">
                                         $ {item.price}
