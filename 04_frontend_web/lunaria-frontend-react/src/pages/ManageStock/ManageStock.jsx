@@ -157,7 +157,7 @@ const ManageStock = () => {
                             <tbody>
                                 {stockData.recentMovements.map((movement, index) => (
                                     <tr key={index}>
-                                        <td>{movement.itemEntity?.name || 'N/A'}</td>
+                                        <td>{movement.itemName || 'N/A'}</td>
                                         <td>{movement.movementType}</td>
                                         <td>{movement.quantity}</td>
                                         <td>{movement.previousStock}</td>

@@ -1,6 +1,6 @@
 package com.santiago_rachen.lunaria_backend_springboot.controller;
 
-import com.santiago_rachen.lunaria_backend_springboot.entity.StockMovement;
+import com.santiago_rachen.lunaria_backend_springboot.io.StockMovementResponse;
 import com.santiago_rachen.lunaria_backend_springboot.service.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +35,8 @@ public class StockController {
     }
 
     @GetMapping("/movements/{itemId}")
-    public ResponseEntity<List<StockMovement>> getProductMovements(@PathVariable Long itemId) {
-        List<StockMovement> movements = stockService.getProductMovements(itemId);
+    public ResponseEntity<List<StockMovementResponse>> getProductMovements(@PathVariable Long itemId) {
+        List<StockMovementResponse> movements = stockService.getProductMovements(itemId);
         return ResponseEntity.ok(movements);
     }
 

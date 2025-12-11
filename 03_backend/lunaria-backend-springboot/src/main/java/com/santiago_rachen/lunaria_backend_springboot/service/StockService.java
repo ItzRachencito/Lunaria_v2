@@ -1,6 +1,7 @@
 package com.santiago_rachen.lunaria_backend_springboot.service;
 
 import com.santiago_rachen.lunaria_backend_springboot.entity.*;
+import com.santiago_rachen.lunaria_backend_springboot.io.StockMovementResponse;
 import com.santiago_rachen.lunaria_backend_springboot.repository.ItemRepository;
 import com.santiago_rachen.lunaria_backend_springboot.repository.StockMovementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class StockService {
@@ -117,15 +119,37 @@ public class StockService {
     /**
      * Obtener historial de movimientos de un producto
      */
-    public List<StockMovement> getProductMovements(Long productId) {
-        return stockMovementRepository.findByItemEntityIdOrderByCreatedAtDesc(productId);
+    public List<StockMovementResponse> getProductMovements(Long productId) {
+        return stockMovementRepository.findByItemEntityIdOrderByCreatedAtDesc(productId)
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     /**
      * Obtener movimientos recientes
      */
-    public List<StockMovement> getRecentMovements() {
-        return stockMovementRepository.findTop50ByOrderByCreatedAtDesc();
+    public List<StockMovementResponse> getRecentMovements() {
+        return stockMovementRepository.findTop50ByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    private StockMovementResponse convertToResponse(StockMovement movement) {
+        return StockMovementResponse.builder()
+                .id(movement.getId())
+                .itemName(movement.getProduct().getName())
+                .movementType(movement.getMovementType().toString())
+                .quantity(movement.getQuantity())
+                .previousStock(movement.getPreviousStock())
+                .newStock(movement.getNewStock())
+                .referenceType(movement.getReferenceType())
+                .referenceId(movement.getReferenceId())
+                .reason(movement.getReason())
+                .createdBy(movement.getCreatedBy())
+                .createdAt(movement.getCreatedAt())
+                .build();
     }
 
     /**
