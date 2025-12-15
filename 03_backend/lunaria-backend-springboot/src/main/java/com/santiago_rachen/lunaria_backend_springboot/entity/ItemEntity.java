@@ -81,7 +81,7 @@ public class ItemEntity {
     public StockStatus getStockStatus() {
         if (stockQuantity == 0) {
             return StockStatus.OUT_OF_STOCK;
-        } else if (stockQuantity <= 10) { // Umbral configurable
+        } else if (stockQuantity <= 2) {
             return StockStatus.LOW_STOCK;
         } else {
             return StockStatus.IN_STOCK;
