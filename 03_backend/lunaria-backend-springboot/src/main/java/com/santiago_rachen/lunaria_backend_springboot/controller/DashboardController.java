@@ -1,8 +1,8 @@
 package com.santiago_rachen.lunaria_backend_springboot.controller;
 
 import com.santiago_rachen.lunaria_backend_springboot.io.DashboardResponse;
-import com.santiago_rachen.lunaria_backend_springboot.io.OrderResponse;
-import com.santiago_rachen.lunaria_backend_springboot.service.OrderService;
+import com.santiago_rachen.lunaria_backend_springboot.io.SaleResponse;
+import com.santiago_rachen.lunaria_backend_springboot.service.SaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,18 +16,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final OrderService orderService;
+    private final SaleService saleService;
 
     @GetMapping
     public DashboardResponse getDashboardData() {
         LocalDate today = LocalDate.now();
-        Double todaySale = orderService.sumSalesByDate(today);
-        Long todayOrderCount = orderService.countByOrderDate(today);
-        List<OrderResponse> recentOrders = orderService.findRecentOrders();
+        Double todaySale = saleService.sumSalesByDate(today);
+        Long todaySaleCount = saleService.countBySaleDate(today);
+        List<SaleResponse> recentSales = saleService.findRecentSales();
         return new DashboardResponse(
                 todaySale != null ? todaySale : 0.0,
-                todayOrderCount != null ? todayOrderCount : 0,
-                recentOrders
+                todaySaleCount != null ? todaySaleCount : 0,
+                recentSales
         );
     }
 }

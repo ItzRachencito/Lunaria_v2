@@ -13,16 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tbl_orders")
+@Table(name = "tbl_sales")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderEntity {
+public class SaleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String orderId;
+    private String saleId;
     private String customerName;
     private String phoneNumber;
     private Double subtotal;
@@ -31,8 +31,8 @@ public class OrderEntity {
     private LocalDateTime createdAt;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "order_id")
-    private List<OrderItemEntity> items = new ArrayList<>();
+    @JoinColumn(name = "sale_id")
+    private List<SaleItemEntity> items = new ArrayList<>();
 
     @Embedded
     private PaymentDetails paymentDetails;
@@ -42,7 +42,7 @@ public class OrderEntity {
 
     @PrePersist
     protected void onCreate() {
-        this.orderId = "ORD"+System.currentTimeMillis();
+        this.saleId = "SAL"+System.currentTimeMillis();
         this.createdAt = LocalDateTime.now();
     }
 

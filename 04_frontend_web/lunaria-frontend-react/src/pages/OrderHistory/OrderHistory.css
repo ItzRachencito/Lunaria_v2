@@ -1,11 +1,11 @@
-.orders-history-container {
+.sales-history-container {
     padding: 20px;
     height: calc(100vh - 5rem);
     box-sizing: border-box;
     background-color: #2c3335;
 }
 
-.orders-history-container h2 {
+.sales-history-container h2 {
     color: #343a40;
     font-weight: 600;
 }

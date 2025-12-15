@@ -1,23 +1,23 @@
 import './OrderHistory.css';
 import {useEffect, useState} from "react";
-import {latestOrders} from "../../Service/OrderService.js";
+import {latestSales} from "../../Service/SaleService.js";
 
 const OrderHistory = () => {
-    const [orders, setOrders] = useState([]);
+    const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchOrders = async () => {
+        const fetchSales = async () => {
             try {
-                const response = await latestOrders();
-                setOrders(response.data);
+                const response = await latestSales();
+                setSales(response.data);
             } catch (error) {
                 console.log(error);
             } finally {
                 setLoading(false);
             }
         }
-        fetchOrders();
+        fetchSales();
     }, []);
 
     const formatDate = (dateString) => {
@@ -32,22 +32,22 @@ const OrderHistory = () => {
     }
 
     if (loading) {
-        return <div className="text-center py-4">Buscando órdenes...</div>
+        return <div className="text-center py-4">Buscando ventas...</div>
     }
 
-    if (orders.length === 0) {
-        return <div className="text-center py-4">No se encontraron órdenes</div>
+    if (sales.length === 0) {
+        return <div className="text-center py-4">No se encontraron ventas</div>
     }
 
     return (
-        <div className="orders-history-container">
-            <h2 className="mb-2 text-light">Órdenes encontradas: </h2>
+        <div className="sales-history-container">
+            <h2 className="mb-2 text-light">Ventas encontradas: </h2>
 
             <div className="table-responsive">
                 <table className="table table-striped table-hover">
                     <thead className="table-dark">
                     <tr>
-                        <th>Número de orden</th>
+                        <th>Número de venta</th>
                         <th>Cliente</th>
                         <th>Cantidad</th>
                         <th>Ítem</th>
@@ -58,15 +58,15 @@ const OrderHistory = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {orders.map(order =>
-                            order.items.map((item, index) => (
-                                <tr key={`${order.orderId}-${index}`}>
+                    {sales.map(sale =>
+                            sale.items.map((item, index) => (
+                                <tr key={`${sale.saleId}-${index}`}>
                                     {index === 0 && (
                                         <>
-                                            <td rowSpan={order.items.length}>{order.orderId}</td>
-                                            <td rowSpan={order.items.length}>
-                                                {order.customerName}<br/>
-                                                <small className="text-muted">{order.phoneNumber}</small>
+                                            <td rowSpan={sale.items.length}>{sale.saleId}</td>
+                                            <td rowSpan={sale.items.length}>
+                                                {sale.customerName}<br/>
+                                                <small className="text-muted">{sale.phoneNumber}</small>
                                             </td>
                                         </>
                                     )}
@@ -74,14 +74,14 @@ const OrderHistory = () => {
                                     <td>{item.name}</td>
                                     {index === 0 && (
                                         <>
-                                            <td rowSpan={order.items.length}>${order.grandTotal}</td>
-                                            <td rowSpan={order.items.length}>{order.paymentMethod}</td>
-                                            <td rowSpan={order.items.length}>
-                                              <span className={`badge ${order.paymentDetails?.status === "COMPLETED" ? "bg-success" : "bg-warning text-dark"}`}>
-                                                {order.paymentDetails?.status || "PENDING"}
+                                            <td rowSpan={sale.items.length}>${sale.grandTotal}</td>
+                                            <td rowSpan={sale.items.length}>{sale.paymentMethod}</td>
+                                            <td rowSpan={sale.items.length}>
+                                              <span className={`badge ${sale.paymentDetails?.status === "COMPLETED" ? "bg-success" : "bg-warning text-dark"}`}>
+                                                {sale.paymentDetails?.status || "PENDING"}
                                               </span>
                                             </td>
-                                            <td rowSpan={order.items.length}>{formatDate(order.createdAt)}</td>
+                                            <td rowSpan={sale.items.length}>{formatDate(sale.createdAt)}</td>
                                         </>
                                     )}
                                 </tr>

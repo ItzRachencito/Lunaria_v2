@@ -10,7 +10,7 @@ const ReceiptPopup = ({orderDetails, onClose, onPrint}) => {
                 </div>
                 <h3 className="text-center mb-4">Comprobante de venta</h3>
                 <p>
-                    <strong>Id de orden:</strong> {orderDetails.orderId}
+                    <strong>Id de venta:</strong> {orderDetails.saleId}
                 </p>
                 <p>
                     <strong>Nombre:</strong> {orderDetails.customerName}

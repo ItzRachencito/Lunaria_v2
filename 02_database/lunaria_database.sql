@@ -92,38 +92,38 @@ CREATE TABLE `tbl_items` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `tbl_order_items`
+-- Table structure for table `tbl_sale_items`
 --
 
-DROP TABLE IF EXISTS `tbl_order_items`;
+DROP TABLE IF EXISTS `tbl_sale_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tbl_order_items` (
+CREATE TABLE `tbl_sale_items` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `item_id` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `price` double DEFAULT NULL,
   `quantity` int DEFAULT NULL,
-  `order_id` bigint DEFAULT NULL,
+  `sale_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `FKi5qvuwu0gqfww50julf2kq3d7` (`order_id`),
-  CONSTRAINT `FKi5qvuwu0gqfww50julf2kq3d7` FOREIGN KEY (`order_id`) REFERENCES `tbl_orders` (`id`)
+  KEY `FK_sale_items_sale` (`sale_id`),
+  CONSTRAINT `FK_sale_items_sale` FOREIGN KEY (`sale_id`) REFERENCES `tbl_sales` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `tbl_orders`
+-- Table structure for table `tbl_sales`
 --
 
-DROP TABLE IF EXISTS `tbl_orders`;
+DROP TABLE IF EXISTS `tbl_sales`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tbl_orders` (
+CREATE TABLE `tbl_sales` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `customer_name` varchar(255) DEFAULT NULL,
   `grand_total` double DEFAULT NULL,
-  `order_id` varchar(255) DEFAULT NULL,
+  `sale_id` varchar(255) DEFAULT NULL,
   `razorpay_order_id` varchar(255) DEFAULT NULL,
   `razorpay_payment_id` varchar(255) DEFAULT NULL,
   `razorpay_signature` varchar(255) DEFAULT NULL,
@@ -133,7 +133,7 @@ CREATE TABLE `tbl_orders` (
   `subtotal` double DEFAULT NULL,
   `tax` double DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `tbl_orders_chk_1` CHECK ((`status` between 0 and 2))
+  CONSTRAINT `tbl_sales_chk_1` CHECK ((`status` between 0 and 2))
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
 @Entity
-@Table(name = "tbl_order_items")
+@Table(name = "tbl_sale_items")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderItemEntity {
+public class SaleItemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

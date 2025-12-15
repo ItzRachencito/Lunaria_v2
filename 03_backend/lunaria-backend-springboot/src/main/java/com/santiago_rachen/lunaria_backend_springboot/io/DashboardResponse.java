@@ -14,6 +14,6 @@ import java.util.List;
 public class DashboardResponse {
 
     private Double todaySales;
-    private Long todayOrderCount;
-    private List<OrderResponse> recentOrders;
+    private Long todaySaleCount;
+    private List<SaleResponse> recentSales;
 }

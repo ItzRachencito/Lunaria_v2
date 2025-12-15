@@ -2,7 +2,7 @@ import './CartSummary.css';
 import {useContext, useState} from "react";
 import {AppContext} from "../../context/AppContext.jsx";
 import ReceiptPopup from "../ReceiptPopup/ReceiptPopup.jsx";
-import {createOrder, deleteOrder} from "../../Service/OrderService.js";
+import {createSale, deleteSale} from "../../Service/SaleService.js";
 import toast from "react-hot-toast";
 import {createRazorpayOrder, verifyPayment} from "../../Service/PaymentService.js";
 import {AppConstants} from "../../util/constants.js";
@@ -43,9 +43,9 @@ const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerNa
         })
     }
 
-    const deleteOrderOnFailure = async (orderId) => {
+    const deleteSaleOnFailure = async (saleId) => {
         try {
-            await deleteOrder(orderId);
+            await deleteSale(saleId);
         } catch (error) {
             console.error(error);
             toast.error("Something went wrong");
@@ -74,7 +74,7 @@ const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerNa
         setIsProcessing(true);
         try {
 
-            const response = await createOrder(orderData);
+            const response = await createSale(orderData);
             const savedData = response.data;
             if (response.status === 201 && paymentMode === "cash") {
                 toast.success("Cash received");
@@ -84,7 +84,7 @@ const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerNa
                 const razorpayLoaded = await loadRazorpayScript();
                 if (!razorpayLoaded) {
                     toast.error('Unable to load razorpay');
-                    await deleteOrderOnFailure(savedData.orderId);
+                    await deleteSaleOnFailure(savedData.saleId);
                     return;
                 }
 
@@ -109,14 +109,14 @@ const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerNa
                     },
                     modal: {
                         ondismiss: async () => {
-                            await deleteOrderOnFailure(savedData.orderId);
+                            await deleteSaleOnFailure(savedData.saleId);
                             toast.error("Payment cancelled");
                         }
                     },
                 };
                 const rzp = new window.Razorpay(options);
                 rzp.on("payment.failed", async (response) => {
-                    await deleteOrderOnFailure(savedData.orderId);
+                    await deleteSaleOnFailure(savedData.saleId);
                     toast.error("Payment failed");
                     console.error(response.error.description);
                 });
@@ -135,7 +135,7 @@ const CartSummary = ({customerName, mobileNumber, setMobileNumber, setCustomerNa
             razorpayOrderId: response.razorpay_order_id,
             razorpayPaymentId: response.razorpay_payment_id,
             razorpaySignature: response.razorpay_signature,
-            orderId: savedOrder.orderId
+            orderId: savedOrder.saleId
         };
         try {
             const paymentResponse = await verifyPayment(paymentData);

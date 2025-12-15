@@ -57,21 +57,21 @@ const Dashboard = () => {
                                 <i className="bi bi-cart-check"></i>
                             </div>
                             <div className="stat-content">
-                                <h3>Órdenes de hoy</h3>
-                                <p>{data.todayOrderCount}</p>
+                                <h3>Ventas de hoy</h3>
+                                <p>{data.todaySaleCount}</p>
                             </div>
                         </div>
                     </div>
-                    <div className="recent-orders-card">
-                        <h3 className="recent-orders-title">
+                    <div className="recent-sales-card">
+                        <h3 className="recent-sales-title">
                             <i className="bi bi-clock-history"></i>
-                            Órdenes recientes
+                            Ventas recientes
                         </h3>
                         <div className="orders-table-container">
                             <table className="orders-table">
                                 <thead>
                                 <tr>
-                                    <th>Número de orden</th>
+                                    <th>Número de venta</th>
                                     <th>Cliente</th>
                                     <th>Total</th>
                                     <th>Método de Pago</th>
@@ -80,23 +80,23 @@ const Dashboard = () => {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {data.recentOrders.map((order) => (
-                                    <tr key={order.orderId}>
-                                        <td>{order.orderId.substring(0,8)}...</td>
-                                        <td>{order.customerName}</td>
-                                        <td>${order.grandTotal.toFixed(2)}</td>
+                                {data.recentSales.map((sale) => (
+                                    <tr key={sale.saleId}>
+                                        <td>{sale.saleId.substring(0,8)}...</td>
+                                        <td>{sale.customerName}</td>
+                                        <td>${sale.grandTotal.toFixed(2)}</td>
                                         <td>
-                                            <span className={`payment-method ${order.paymentMethod.toLowerCase()}`}>
-                                                {order.paymentMethod}
+                                            <span className={`payment-method ${sale.paymentMethod.toLowerCase()}`}>
+                                                {sale.paymentMethod}
                                             </span>
                                         </td>
                                         <td>
-                                            <span className={`status-badge ${order.paymentDetails.status.toLowerCase()}`}>
-                                                {order.paymentDetails.status}
+                                            <span className={`status-badge ${sale.paymentDetails.status.toLowerCase()}`}>
+                                                {sale.paymentDetails.status}
                                             </span>
                                         </td>
                                         <td>
-                                            {new Date(order.createdAt).toLocaleDateString([], {
+                                            {new Date(sale.createdAt).toLocaleDateString([], {
                                                 hour: '2-digit',
                                                 minute: '2-digit',
                                             })}
