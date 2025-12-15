@@ -1,5 +1,6 @@
 package com.santiago_rachen.lunaria_backend_springboot.controller;
 
+import com.santiago_rachen.lunaria_backend_springboot.entity.UserEntity;
 import com.santiago_rachen.lunaria_backend_springboot.io.FavoriteResponse;
 import com.santiago_rachen.lunaria_backend_springboot.repository.UserRepository;
 import com.santiago_rachen.lunaria_backend_springboot.service.FavoriteService;
@@ -22,16 +23,18 @@ public class FavoriteController {
 
     @PostMapping("/{itemId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public FavoriteResponse addToFavorites(@PathVariable Long itemId, Authentication authentication) {
+    public FavoriteResponse addToFavorites(@PathVariable String itemId, Authentication authentication) {
+        System.out.println("Adding to favorites - itemId: " + itemId + ", user: " + authentication.getName());
         Long userId = getUserIdFromAuthentication(authentication);
-        return favoriteService.addToFavorites(userId, itemId);
+        System.out.println("User ID: " + userId);
+        return favoriteService.addToFavoritesByItemId(userId, itemId);
     }
 
     @DeleteMapping("/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeFromFavorites(@PathVariable Long itemId, Authentication authentication) {
+    public void removeFromFavorites(@PathVariable String itemId, Authentication authentication) {
         Long userId = getUserIdFromAuthentication(authentication);
-        favoriteService.removeFromFavorites(userId, itemId);
+        favoriteService.removeFromFavoritesByItemId(userId, itemId);
     }
 
     @GetMapping
@@ -41,17 +44,19 @@ public class FavoriteController {
     }
 
     @GetMapping("/{itemId}/status")
-    public ResponseEntity<Map<String, Boolean>> checkFavoriteStatus(@PathVariable Long itemId, Authentication authentication) {
+    public ResponseEntity<Map<String, Boolean>> checkFavoriteStatus(@PathVariable String itemId, Authentication authentication) {
         Long userId = getUserIdFromAuthentication(authentication);
-        boolean isFavorite = favoriteService.isFavorite(userId, itemId);
+        boolean isFavorite = favoriteService.isFavoriteByItemId(userId, itemId);
         return ResponseEntity.ok(Map.of("isFavorite", isFavorite));
     }
 
     private Long getUserIdFromAuthentication(Authentication authentication) {
         // authentication.getName() returns the email
         String email = authentication.getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"))
-                .getId();
+        System.out.println("Getting user by email: " + email);
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        System.out.println("Found user ID: " + user.getId());
+        return user.getId();
     }
 }

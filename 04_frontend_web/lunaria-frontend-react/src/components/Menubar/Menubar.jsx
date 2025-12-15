@@ -79,12 +79,16 @@ const Menubar = () => {
                                 <a href="#!" className="dropdown-item">
                                     Ajustes
                                 </a>
+                            </li>
+                            <li>
                                 <a href="#!" className="dropdown-item">
                                     Movimientos recientes
                                 </a>
-                                <li>
-                                    <hr className="dropdown-divider" />
-                                </li>
+                            </li>
+                            <li>
+                                <hr className="dropdown-divider" />
+                            </li>
+                            <li>
                                 <a href="#!" className="dropdown-item" onClick={logout}>
                                     Cerrar sesión
                                 </a>

@@ -18,6 +18,6 @@ public interface FavoriteRepository extends JpaRepository<FavoriteEntity, Long> 
 
     void deleteByUserIdAndItemId(Long userId, Long itemId);
 
-    @Query("SELECT f FROM FavoriteEntity f WHERE f.user.id = :userId ORDER BY f.createdAt DESC")
+    @Query("SELECT f FROM FavoriteEntity f JOIN FETCH f.item WHERE f.user.id = :userId ORDER BY f.createdAt DESC")
     List<FavoriteEntity> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 }

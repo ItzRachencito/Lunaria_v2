@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class FavoriteResponse {
 
     private Long id;
-    private Long itemId;
+    private String itemId;
     private String itemName;
     private String itemDescription;
     private String itemImgUrl;

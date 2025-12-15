@@ -8,9 +8,15 @@ public interface FavoriteService {
 
     FavoriteResponse addToFavorites(Long userId, Long itemId);
 
+    FavoriteResponse addToFavoritesByItemId(Long userId, String itemId);
+
     void removeFromFavorites(Long userId, Long itemId);
+
+    void removeFromFavoritesByItemId(Long userId, String itemId);
 
     List<FavoriteResponse> getUserFavorites(Long userId);
 
     boolean isFavorite(Long userId, Long itemId);
+
+    boolean isFavoriteByItemId(Long userId, String itemId);
 }

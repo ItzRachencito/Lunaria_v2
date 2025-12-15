@@ -3,7 +3,8 @@ import {useContext} from "react";
 import {AppContext} from "../../context/AppContext.jsx";
 
 const Item = ({itemName, itemPrice, itemImage, itemId, onItemClick}) => {
-    const {addToCart} = useContext(AppContext);
+    const {addToCart, auth, addToFavorites} = useContext(AppContext);
+    const isAdmin = auth.role === 'ROLE_ADMIN';
     const handleAddToCart = (e) => {
         e.stopPropagation(); // Prevent triggering the card click
         addToCart({
@@ -12,6 +13,16 @@ const Item = ({itemName, itemPrice, itemImage, itemId, onItemClick}) => {
             quantity: 1,
             itemId: itemId
         });
+    }
+
+    const handleAddToFavorites = async (e) => {
+        e.stopPropagation(); // Prevent triggering the card click
+        console.log('handleAddToFavorites called for itemId:', itemId);
+        try {
+            await addToFavorites(itemId);
+        } catch (error) {
+            console.error("Error adding to favorites:", error);
+        }
     }
 
     const handleCardClick = () => {
@@ -33,10 +44,27 @@ const Item = ({itemName, itemPrice, itemImage, itemId, onItemClick}) => {
 
             <div className="d-flex flex-column justify-content-between align-items-center ms-3"
                 style={{height: "100%"}}>
-                <i className="bi bi-cart-plus fs-4 text-warning"></i>
-                <button className="btn btn-success btn-sm" onClick={handleAddToCart}>
-                    <i className="bi bi-plus"></i>
-                </button>
+                {isAdmin ? (
+                    <>
+                        <i className="bi bi-cart-plus fs-4 text-warning"></i>
+                        <button className="btn btn-success btn-sm" onClick={handleAddToCart}>
+                            <i className="bi bi-plus"></i>
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <i className="bi bi-heart fs-4 text-danger"></i>
+                        <button
+                            className="btn btn-warning btn-sm"
+                            onClick={(e) => {
+                                console.log('Button clicked for item:', itemId);
+                                handleAddToFavorites(e);
+                            }}
+                        >
+                            <i className="bi bi-heart"></i>
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     )

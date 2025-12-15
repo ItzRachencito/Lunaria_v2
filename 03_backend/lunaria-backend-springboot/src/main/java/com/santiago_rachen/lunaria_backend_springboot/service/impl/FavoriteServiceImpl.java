@@ -10,6 +10,7 @@ import com.santiago_rachen.lunaria_backend_springboot.repository.UserRepository;
 import com.santiago_rachen.lunaria_backend_springboot.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,14 +63,39 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    public FavoriteResponse addToFavoritesByItemId(Long userId, String itemId) {
+        ItemEntity item = itemRepository.findByItemId(itemId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        return addToFavorites(userId, item.getId());
+    }
+
+    @Override
+    @Transactional
+    public void removeFromFavoritesByItemId(Long userId, String itemId) {
+        ItemEntity item = itemRepository.findByItemId(itemId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        removeFromFavorites(userId, item.getId());
+    }
+
+    @Override
     public boolean isFavorite(Long userId, Long itemId) {
         return favoriteRepository.existsByUserIdAndItemId(userId, itemId);
+    }
+
+    @Override
+    public boolean isFavoriteByItemId(Long userId, String itemId) {
+        ItemEntity item = itemRepository.findByItemId(itemId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        return isFavorite(userId, item.getId());
     }
 
     private FavoriteResponse convertToResponse(FavoriteEntity favorite) {
         return FavoriteResponse.builder()
                 .id(favorite.getId())
-                .itemId(favorite.getItem().getId())
+                .itemId(favorite.getItem().getItemId())  // Use String UUID instead of Long ID
                 .itemName(favorite.getItem().getName())
                 .itemDescription(favorite.getItem().getDescription())
                 .itemImgUrl(favorite.getItem().getImgUrl())
