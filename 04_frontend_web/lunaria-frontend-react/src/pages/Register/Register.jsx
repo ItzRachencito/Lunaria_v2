@@ -29,8 +29,19 @@ const Register = () => {
                 navigate("/login");
             }
         } catch (error) {
-            console.error(error);
-            toast.error("Error al registrar usuario");
+            // Extract specific error message from backend
+            let errorMessage = "Error al registrar usuario";
+
+            if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (typeof error?.response?.data === 'string') {
+                errorMessage = error.response.data;
+            } else if (error?.message) {
+                errorMessage = error.message;
+            }
+
+            // Show the backend error message directly
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }

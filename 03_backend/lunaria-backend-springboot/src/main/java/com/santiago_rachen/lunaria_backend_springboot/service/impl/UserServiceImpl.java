@@ -23,6 +23,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserRequest request) {
+        // Check if email already exists
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("El correo electrónico ya está registrado");
+        }
+
         UserEntity newUser = convertToEntity(request);
         newUser = userRepository.save(newUser);
         return convertToResponse(newUser);

@@ -154,7 +154,8 @@ CREATE TABLE `tbl_users` (
   `updated_at` datetime(6) DEFAULT NULL,
   `user_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UKmjbs9x9gfunub398pfm26lmnd` (`user_id`)
+  UNIQUE KEY `UKmjbs9x9gfunub398pfm26lmnd` (`user_id`),
+  UNIQUE KEY `UK_users_email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

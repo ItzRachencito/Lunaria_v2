@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
@@ -55,13 +56,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse register(@RequestBody UserRequest request) {
+    public ResponseEntity<?> register(@RequestBody UserRequest request) {
         try {
             request.setRole("ROLE_USER");
-            return userService.createUser(request);
+            UserResponse user = userService.createUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to create user: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", true, "message", e.getMessage()));
         }
     }
 
