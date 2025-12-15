@@ -58,6 +58,7 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse register(@RequestBody UserRequest request) {
         try {
+            request.setRole("ROLE_USER");
             return userService.createUser(request);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to create user: " + e.getMessage());

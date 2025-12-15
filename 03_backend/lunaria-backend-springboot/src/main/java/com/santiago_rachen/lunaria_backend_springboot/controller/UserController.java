@@ -22,6 +22,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse registerUser(@RequestBody UserRequest request) {
         try {
+            request.setRole("ROLE_ADMIN");
             return userService.createUser(request);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to create user "+e.getMessage());
