@@ -38,11 +38,15 @@ const Menubar = () => {
                     <li className="nav-item">
                         <Link className={`nav-link ${isActive('/explore') ? 'fw-bold text-warning': ''}`} to="/explore">Catálogo</Link>
                     </li>
-                    <li className="nav-item">
-                        <Link className={`nav-link ${isActive('/favorites') ? 'fw-bold text-warning': ''}`} to="/favorites">
-                            <i className="bi bi-heart me-1"></i>Favoritos
-                        </Link>
-                    </li>
+                    {
+                        !isAdmin && (
+                            <li className="nav-item">
+                                <Link className={`nav-link ${isActive('/favorites') ? 'fw-bold text-warning': ''}`} to="/favorites">
+                                    <i className="bi bi-heart me-1"></i>Favoritos
+                                </Link>
+                            </li>
+                        )
+                    }
                     {
                         isAdmin && (
                             <>
@@ -61,12 +65,12 @@ const Menubar = () => {
                                 <li className="nav-item">
                                     <Link className={`nav-link ${isActive('/stock') ? 'fw-bold text-warning': ''}`} to="/stock">Gestionar Inventario</Link>
                                 </li>
+                                <li className="nav-item">
+                                    <Link className={`nav-link ${isActive('/orders') ? 'fw-bold text-warning': ''}`} to="/orders">Historial de Órdenes</Link>
+                                </li>
                             </>
                         )
                     }
-                    <li className="nav-item">
-                        <Link className={`nav-link ${isActive('/orders') ? 'fw-bold text-warning': ''}`} to="/orders">Historial de Órdenes</Link>
-                    </li>
                 </ul>
                 {/*Add the dropdown for userprofile*/}
                 <ul className="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">

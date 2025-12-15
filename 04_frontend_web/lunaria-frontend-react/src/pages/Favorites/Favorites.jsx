@@ -10,23 +10,24 @@ const Favorites = () => {
     };
 
     return (
-        <div className="container mt-4">
-            <h2 className="mb-4 text-warning">
-                <i className="bi bi-heart-fill me-2"></i>
-                Mis Favoritos
-            </h2>
+        <div className="favorites-container">
+            <div className="container mt-4">
+                <h2 className="mb-4 text-warning">
+                    <i className="bi bi-heart-fill me-2"></i>
+                    Mis Favoritos
+                </h2>
 
-            {favorites.length === 0 ? (
-                <div className="text-center py-5">
-                    <i className="bi bi-heart display-1 text-muted mb-3"></i>
-                    <h4 className="text-muted">No tienes productos favoritos</h4>
-                    <p className="text-muted">Agrega productos a tus favoritos desde el catálogo</p>
-                </div>
-            ) : (
-                <div className="row g-3">
-                    {favorites.map((favorite) => (
-                        <div key={favorite.id} className="col-md-4 col-sm-6">
-                            <div className="card h-100 shadow-sm">
+                {favorites.length === 0 ? (
+                    <div className="favorites-empty text-center py-5">
+                        <i className="bi bi-heart display-1 text-muted mb-3"></i>
+                        <h4 className="text-muted">No tienes productos favoritos</h4>
+                        <p className="text-muted">Agrega productos a tus favoritos desde el catálogo</p>
+                    </div>
+                ) : (
+                    <div className="favorites-grid row g-3">
+                        {favorites.map((favorite) => (
+                            <div key={favorite.id} className="col-md-4 col-sm-6">
+                                <div className="card h-100 shadow-sm">
                                 <div className="card-img-container">
                                     <img
                                         src={favorite.itemImgUrl}
@@ -58,6 +59,7 @@ const Favorites = () => {
                     ))}
                 </div>
             )}
+            </div>
         </div>
     );
 };

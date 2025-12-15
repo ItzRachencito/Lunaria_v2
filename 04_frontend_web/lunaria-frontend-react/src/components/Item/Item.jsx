@@ -3,7 +3,7 @@ import {useContext} from "react";
 import {AppContext} from "../../context/AppContext.jsx";
 
 const Item = ({itemName, itemPrice, itemImage, itemId, onItemClick}) => {
-    const {addToCart, auth, addToFavorites} = useContext(AppContext);
+    const {addToCart, auth, addToFavorites, checkFavoriteStatus} = useContext(AppContext);
     const isAdmin = auth.role === 'ROLE_ADMIN';
     const handleAddToCart = (e) => {
         e.stopPropagation(); // Prevent triggering the card click
@@ -53,7 +53,15 @@ const Item = ({itemName, itemPrice, itemImage, itemId, onItemClick}) => {
                     </>
                 ) : (
                     <>
-                        <i className="bi bi-heart fs-4 text-danger"></i>
+                        <i
+                            className="bi bi-heart fs-4 text-danger"
+                            style={{cursor: 'pointer'}}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Heart icon clicked for item:', itemId);
+                                handleAddToFavorites(e);
+                            }}
+                        ></i>
                         <button
                             className="btn btn-warning btn-sm"
                             onClick={(e) => {

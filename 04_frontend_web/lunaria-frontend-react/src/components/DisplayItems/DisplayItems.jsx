@@ -40,7 +40,7 @@ const DisplayItems = ({selectedCategory}) => {
     const handleAddToFavoritesFromModal = async () => {
         if (selectedItem) {
             try {
-                await addToFavorites(selectedItem.id);
+                await addToFavorites(selectedItem.itemId);
                 closeItemModal();
             } catch (error) {
                 console.error("Error adding to favorites from modal:", error);

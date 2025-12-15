@@ -46,7 +46,7 @@ const App = () => {
             <Routes>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/explore" element={<Explore />} />
-                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/favorites" element={<ProtectedRoute element={<Favorites />} allowedRoles={['ROLE_USER']} />} />
                 {/*Admin only routes*/}
                 <Route path="/category" element={<ProtectedRoute element={<ManageCategory />} allowedRoles={['ROLE_ADMIN']} />} />
                 <Route path="/brand" element={<ProtectedRoute element={<ManageBrand />} allowedRoles={['ROLE_ADMIN']} />} />

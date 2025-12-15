@@ -22,3 +22,7 @@
 .card-body {
     padding: 2rem;
 }
+
+.card-title {
+    color: #000 !important;
+}

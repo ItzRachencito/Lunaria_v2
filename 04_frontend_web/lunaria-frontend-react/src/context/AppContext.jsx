@@ -84,13 +84,29 @@ export const AppContextProvider = (props) => {
     }
 
     const addToFavorites = async (itemId) => {
+        console.log('addToFavorites called with itemId:', itemId);
         try {
-            await addToFavoritesAPI(itemId);
+            const result = await addToFavoritesAPI(itemId);
             setFavoriteStatuses(prev => new Map(prev.set(itemId, true)));
+            // Add the new favorite to the local favorites list
+            setFavorites(prev => [...prev, result]);
             toast.success("Agregado a favoritos");
         } catch (error) {
-            toast.error("Error al agregar a favoritos");
             console.error("Error adding to favorites:", error);
+            // Check if the error is because the product is already in favorites
+            const errorMessage = error?.message || error?.response?.data?.message || String(error);
+            if (errorMessage && errorMessage.includes("ya está en favoritos")) {
+                toast("El producto ya está en tus favoritos", {
+                    icon: 'ℹ️',
+                    style: {
+                        background: '#fef3c7',
+                        color: '#92400e',
+                        border: '1px solid #f59e0b'
+                    }
+                });
+            } else {
+                toast.error("Error al agregar a favoritos");
+            }
             // Don't rethrow the error to prevent app crash
         }
     }
@@ -99,6 +115,8 @@ export const AppContextProvider = (props) => {
         try {
             await removeFromFavoritesAPI(itemId);
             setFavoriteStatuses(prev => new Map(prev.set(itemId, false)));
+            // Remove the item from the local favorites list
+            setFavorites(prev => prev.filter(fav => fav.itemId !== itemId));
             toast.success("Removido de favoritos");
         } catch (error) {
             toast.error("Error al remover de favoritos");
