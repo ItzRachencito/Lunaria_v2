@@ -183,6 +183,28 @@ CREATE TABLE `tbl_stock_movements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `tbl_user_favorites`
+--
+
+DROP TABLE IF EXISTS `tbl_user_favorites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_user_favorites` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `item_id` bigint NOT NULL,
+  `user_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_user_item_favorite` (`user_id`, `item_id`),
+  KEY `FK_favorite_item` (`item_id`),
+  KEY `FK_favorite_user` (`user_id`),
+  CONSTRAINT `FK_favorite_item` FOREIGN KEY (`item_id`) REFERENCES `tbl_items` (`id`),
+  CONSTRAINT `FK_favorite_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

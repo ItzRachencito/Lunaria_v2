@@ -2,6 +2,7 @@ import {createContext, useEffect, useState} from "react";
 import {fetchCategories} from "../Service/CategoryService.js";
 import {fetchBrands} from "../Service/BrandService.js";
 import {fetchItems} from "../Service/ItemService.js";
+import {addToFavorites, removeFromFavorites, getUserFavorites, checkFavoriteStatus} from "../Service/FavoriteService.js";
 import toast from "react-hot-toast";
 
 export const AppContext = createContext(null);
@@ -13,6 +14,8 @@ export const AppContextProvider = (props) => {
     const [itemsData, setItemsData] = useState([]);
     const [auth, setAuth] = useState({token: null, role: null});
     const [cartItems, setCartItems] = useState([]);
+    const [favorites, setFavorites] = useState([]);
+    const [favoriteStatuses, setFavoriteStatuses] = useState(new Map());
 
     const addToCart = (item) => {
         const existingItem = cartItems.find(cartItem => cartItem.name === item.name);
@@ -54,6 +57,9 @@ export const AppContextProvider = (props) => {
                     setCategories(response.data);
                     setBrands(brandResponse.data);
                     setItemsData(itemResponse.data);
+
+                    // Load user favorites
+                    await loadUserFavorites();
                 } catch (error) {
                     console.error("Error loading authenticated data:", error);
                 }
@@ -62,6 +68,8 @@ export const AppContextProvider = (props) => {
                 setCategories([]);
                 setBrands([]);
                 setItemsData([]);
+                setFavorites([]);
+                setFavoriteStatuses(new Map());
             }
         }
         loadAuthenticatedData();
@@ -73,6 +81,58 @@ export const AppContextProvider = (props) => {
 
     const clearCart = () => {
         setCartItems([]);
+    }
+
+    const addToFavorites = async (itemId) => {
+        try {
+            await addToFavorites(itemId);
+            setFavoriteStatuses(prev => new Map(prev.set(itemId, true)));
+            toast.success("Agregado a favoritos");
+        } catch (error) {
+            toast.error("Error al agregar a favoritos");
+            console.error("Error adding to favorites:", error);
+        }
+    }
+
+    const removeFromFavorites = async (itemId) => {
+        try {
+            await removeFromFavorites(itemId);
+            setFavoriteStatuses(prev => new Map(prev.set(itemId, false)));
+            toast.success("Removido de favoritos");
+        } catch (error) {
+            toast.error("Error al remover de favoritos");
+            console.error("Error removing from favorites:", error);
+        }
+    }
+
+    const loadUserFavorites = async () => {
+        try {
+            const userFavorites = await getUserFavorites();
+            setFavorites(userFavorites);
+
+            // Update favorite statuses
+            const statuses = new Map();
+            userFavorites.forEach(fav => {
+                statuses.set(fav.itemId, true);
+            });
+            setFavoriteStatuses(statuses);
+        } catch (error) {
+            console.error("Error loading favorites:", error);
+        }
+    }
+
+    const checkFavoriteStatus = async (itemId) => {
+        if (favoriteStatuses.has(itemId)) {
+            return favoriteStatuses.get(itemId);
+        }
+        try {
+            const isFavorite = await checkFavoriteStatus(itemId);
+            setFavoriteStatuses(prev => new Map(prev.set(itemId, isFavorite)));
+            return isFavorite;
+        } catch (error) {
+            console.error("Error checking favorite status:", error);
+            return false;
+        }
     }
 
     const refreshItems = async () => {
@@ -110,7 +170,12 @@ export const AppContextProvider = (props) => {
         updateQuantity,
         clearCart,
         refreshItems,
-        refreshBrands
+        refreshBrands,
+        favorites,
+        addToFavorites,
+        removeFromFavorites,
+        loadUserFavorites,
+        checkFavoriteStatus
     }
 
     return <AppContext.Provider value={contextValue}>

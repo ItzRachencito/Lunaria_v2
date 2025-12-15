@@ -5,7 +5,7 @@ import Item from "../Item/Item.jsx";
 import SearchBox from "../SearchBox/SearchBox.jsx";
 
 const DisplayItems = ({selectedCategory}) => {
-    const {itemsData, addToCart} = useContext(AppContext);
+    const {itemsData, addToCart, auth, addToFavorites, checkFavoriteStatus} = useContext(AppContext);
     const [searchText, setSearchText] = useState("");
     const [showItemModal, setShowItemModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -34,6 +34,13 @@ const DisplayItems = ({selectedCategory}) => {
                 itemId: selectedItem.itemId
             });
             closeItemModal(); // Close modal after adding to cart
+        }
+    }
+
+    const handleAddToFavoritesFromModal = async () => {
+        if (selectedItem) {
+            await addToFavorites(selectedItem.id);
+            closeItemModal();
         }
     }
 
@@ -123,10 +130,17 @@ const DisplayItems = ({selectedCategory}) => {
                                 </div>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-success" onClick={handleAddToCartFromModal}>
-                                    <i className="bi bi-cart-plus me-2"></i>
-                                    Agregar al carrito
-                                </button>
+                                {auth.role === 'ROLE_ADMIN' ? (
+                                    <button type="button" className="btn btn-success" onClick={handleAddToCartFromModal}>
+                                        <i className="bi bi-cart-plus me-2"></i>
+                                        Agregar al carrito
+                                    </button>
+                                ) : (
+                                    <button type="button" className="btn btn-warning" onClick={handleAddToFavoritesFromModal}>
+                                        <i className="bi bi-heart me-2"></i>
+                                        Agregar a favoritos
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

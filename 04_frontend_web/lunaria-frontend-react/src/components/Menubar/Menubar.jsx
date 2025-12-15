@@ -38,6 +38,11 @@ const Menubar = () => {
                     <li className="nav-item">
                         <Link className={`nav-link ${isActive('/explore') ? 'fw-bold text-warning': ''}`} to="/explore">Catálogo</Link>
                     </li>
+                    <li className="nav-item">
+                        <Link className={`nav-link ${isActive('/favorites') ? 'fw-bold text-warning': ''}`} to="/favorites">
+                            <i className="bi bi-heart me-1"></i>Favoritos
+                        </Link>
+                    </li>
                     {
                         isAdmin && (
                             <>
