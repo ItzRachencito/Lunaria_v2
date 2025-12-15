@@ -26,16 +26,12 @@ public class SaleEntity {
     private String customerName;
     private String phoneNumber;
     private Double subtotal;
-    private Double tax;
     private Double grandTotal;
     private LocalDateTime createdAt;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "sale_id")
     private List<SaleItemEntity> items = new ArrayList<>();
-
-    @Embedded
-    private PaymentDetails paymentDetails;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;

@@ -11,7 +11,7 @@ import Favorites from "./pages/Favorites/Favorites.jsx";
 import {Toaster} from "react-hot-toast";
 import Login from "./pages/Login/Login.jsx";
 import Register from "./pages/Register/Register.jsx";
-import OrderHistory from "./pages/OrderHistory/OrderHistory.jsx";
+import SaleHistory from "./pages/SaleHistory/SaleHistory.jsx";
 import {useContext} from "react";
 import {AppContext} from "./context/AppContext.jsx";
 import NotFound from "./pages/NotFound/NotFound.jsx";
@@ -56,7 +56,7 @@ const App = () => {
 
                 <Route path="/login" element={<LoginRoute element={<Login />} />} />
                 <Route path="/register" element={<LoginRoute element={<Register />} />} />
-                <Route path="/ventas" element={<OrderHistory />} />
+                <Route path="/ventas" element={<ProtectedRoute element={<SaleHistory />} allowedRoles={['ROLE_ADMIN']} />} />
                 <Route path="/" element={<Login />} />
                 <Route path="*" element={<NotFound />} />
 

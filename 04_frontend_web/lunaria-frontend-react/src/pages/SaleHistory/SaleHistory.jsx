@@ -1,8 +1,8 @@
-import './OrderHistory.css';
+import './SaleHistory.css';
 import {useEffect, useState} from "react";
 import {latestSales} from "../../Service/SaleService.js";
 
-const OrderHistory = () => {
+const SaleHistory = () => {
     const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -51,6 +51,7 @@ const OrderHistory = () => {
                         <th>Cliente</th>
                         <th>Cantidad</th>
                         <th>Ítem</th>
+                        <th>Subtotal</th>
                         <th>Total</th>
                         <th>Método de Pago</th>
                         <th>Estado</th>
@@ -74,11 +75,12 @@ const OrderHistory = () => {
                                     <td>{item.name}</td>
                                     {index === 0 && (
                                         <>
+                                            <td rowSpan={sale.items.length}>${sale.subtotal}</td>
                                             <td rowSpan={sale.items.length}>${sale.grandTotal}</td>
                                             <td rowSpan={sale.items.length}>{sale.paymentMethod}</td>
                                             <td rowSpan={sale.items.length}>
-                                              <span className={`badge ${sale.paymentDetails?.status === "COMPLETED" ? "bg-success" : "bg-warning text-dark"}`}>
-                                                {sale.paymentDetails?.status || "PENDING"}
+                                              <span className="badge bg-success">
+                                                COMPLETADO
                                               </span>
                                             </td>
                                             <td rowSpan={sale.items.length}>{formatDate(sale.createdAt)}</td>
@@ -94,4 +96,4 @@ const OrderHistory = () => {
     )
 }
 
-export default OrderHistory;
+export default SaleHistory;

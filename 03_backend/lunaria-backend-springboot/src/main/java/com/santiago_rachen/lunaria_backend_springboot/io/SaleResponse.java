@@ -18,11 +18,9 @@ public class SaleResponse {
     private String phoneNumber;
     private List<SaleResponse.SaleItemResponse> items;
     private Double subtotal;
-    private Double tax;
     private Double grandTotal;
     private PaymentMethod paymentMethod;
     private LocalDateTime createdAt;
-    private PaymentDetails paymentDetails;
 
     @Data
     @AllArgsConstructor

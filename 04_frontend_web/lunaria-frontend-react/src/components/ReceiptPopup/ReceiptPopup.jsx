@@ -35,12 +35,6 @@ const ReceiptPopup = ({orderDetails, onClose, onPrint}) => {
                     </span>
                     <span>${orderDetails.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="d-flex justify-content-between mb-2">
-                    <span>
-                        <strong>Iva (19%):</strong>
-                    </span>
-                    <span>${orderDetails.tax.toFixed(2)}</span>
-                </div>
                 <div className="d-flex justify-content-between mb-4">
                     <span>
                         <strong>Total:</strong>
@@ -48,20 +42,8 @@ const ReceiptPopup = ({orderDetails, onClose, onPrint}) => {
                     <span>${orderDetails.grandTotal.toFixed(2)}</span>
                 </div>
                 <p>
-                    <strong>Método de pago: </strong> {orderDetails.paymentMethod}
+                    <strong>Método de pago: </strong> {orderDetails.paymentMethod === "CASH" ? "Efectivo" : orderDetails.paymentMethod}
                 </p>
-                {
-                    orderDetails.paymentMethod === "UPI" && (
-                        <>
-                            <p>
-                                <strong>Razorpay Order ID: </strong> {orderDetails.razorpayOrderId}
-                            </p>
-                            <p>
-                                <strong>Razorpay Payment ID: </strong> {orderDetails.razorpayPaymentId}
-                            </p>
-                        </>
-                    )
-                }
                 <div className="d-flex justify-content-end gap-3 mt-4">
                     <button className="btn btn-warning" onClick={onPrint}>Imprimir Comprobante</button>
                     <button className="btn btn-danger" onClick={onClose}>Cerrar</button>

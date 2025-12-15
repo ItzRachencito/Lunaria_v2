@@ -17,7 +17,6 @@ public class SaleRequest {
     private String phoneNumber;
     private List<SaleItemRequest> cartItems;
     private Double subtotal;
-    private Double tax;
     private Double grandTotal;
     private String paymentMethod;
 

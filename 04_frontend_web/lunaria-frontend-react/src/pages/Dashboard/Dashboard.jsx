@@ -91,8 +91,8 @@ const Dashboard = () => {
                                             </span>
                                         </td>
                                         <td>
-                                            <span className={`status-badge ${sale.paymentDetails.status.toLowerCase()}`}>
-                                                {sale.paymentDetails.status}
+                                            <span className="status-badge completed">
+                                                COMPLETADO
                                             </span>
                                         </td>
                                         <td>

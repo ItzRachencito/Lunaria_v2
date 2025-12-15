@@ -37,11 +37,6 @@ public class SaleServiceImpl implements SaleService {
 
         SaleEntity newSale = convertToSaleEntity(request);
 
-        PaymentDetails paymentDetails = new PaymentDetails();
-        paymentDetails.setStatus(newSale.getPaymentMethod() == PaymentMethod.CASH ?
-                PaymentDetails.PaymentStatus.COMPLETED : PaymentDetails.PaymentStatus.PENDING);
-        newSale.setPaymentDetails(paymentDetails);
-
         List<SaleItemEntity> saleItems = request.getCartItems().stream()
                 .map(this::convertToSaleItemEntity)
                 .collect(Collectors.toList());
@@ -75,13 +70,11 @@ public class SaleServiceImpl implements SaleService {
                 .customerName(newSale.getCustomerName())
                 .phoneNumber(newSale.getPhoneNumber())
                 .subtotal(newSale.getSubtotal())
-                .tax(newSale.getTax())
                 .grandTotal(newSale.getGrandTotal())
                 .paymentMethod(newSale.getPaymentMethod())
                 .items(newSale.getItems().stream()
                         .map(this::convertToItemResponse)
                         .collect(Collectors.toList()))
-                .paymentDetails(newSale.getPaymentDetails())
                 .createdAt(newSale.getCreatedAt())
                 .build();
 
@@ -102,7 +95,6 @@ public class SaleServiceImpl implements SaleService {
                 .customerName(request.getCustomerName())
                 .phoneNumber(request.getPhoneNumber())
                 .subtotal(request.getSubtotal())
-                .tax(request.getTax())
                 .grandTotal(request.getGrandTotal())
                 .paymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()))
                 .build();
@@ -123,27 +115,6 @@ public class SaleServiceImpl implements SaleService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public SaleResponse verifyPayment(PaymentVerificationRequest request) {
-        SaleEntity existingSale = saleEntityRepository.findBySaleId(request.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
-
-        if (!verifyRazorpaySignature(request.getRazorpayOrderId(),
-                request.getRazorpayPaymentId(),
-                request.getRazorpaySignature())) {
-            throw new RuntimeException("Payment verification failed");
-        }
-
-        PaymentDetails paymentDetails = existingSale.getPaymentDetails();
-        paymentDetails.setRazorpayOrderId(request.getRazorpayOrderId());
-        paymentDetails.setRazorpayPaymentId(request.getRazorpayPaymentId());
-        paymentDetails.setRazorpaySignature(request.getRazorpaySignature());
-        paymentDetails.setStatus(PaymentDetails.PaymentStatus.COMPLETED);
-
-        existingSale = saleEntityRepository.save(existingSale);
-        return convertToResponse(existingSale);
-
-    }
 
     @Override
     public Double sumSalesByDate(LocalDate date) {
@@ -163,7 +134,4 @@ public class SaleServiceImpl implements SaleService {
                 .collect(Collectors.toList());
     }
 
-    private boolean verifyRazorpaySignature(String razorpayOrderId, String razorpayPaymentId, String razorpaySignature) {
-        return true;
-    }
 }

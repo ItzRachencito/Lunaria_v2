@@ -66,7 +66,7 @@ const Menubar = () => {
                                     <Link className={`nav-link ${isActive('/stock') ? 'fw-bold text-warning': ''}`} to="/stock">Gestionar Inventario</Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link className={`nav-link ${isActive('/orders') ? 'fw-bold text-warning': ''}`} to="/orders">Historial de Órdenes</Link>
+                                    <Link className={`nav-link ${isActive('/ventas') ? 'fw-bold text-warning': ''}`} to="/ventas">Historial de Ventas</Link>
                                 </li>
                             </>
                         )
