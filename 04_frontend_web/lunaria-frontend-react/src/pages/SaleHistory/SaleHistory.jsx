@@ -1,10 +1,13 @@
 import './SaleHistory.css';
 import {useEffect, useState} from "react";
 import {latestSales} from "../../Service/SaleService.js";
+import ReceiptPopup from "../../components/ReceiptPopup/ReceiptPopup.jsx";
 
 const SaleHistory = () => {
     const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showPopup, setShowPopup] = useState(false);
+    const [selectedSale, setSelectedSale] = useState(null);
 
     useEffect(() => {
         const fetchSales = async () => {
@@ -29,6 +32,20 @@ const SaleHistory = () => {
             minute: '2-digit',
         }
         return new Date(dateString).toLocaleDateString('en-US', options);
+    }
+
+    const handleViewReceipt = (sale) => {
+        setSelectedSale(sale);
+        setShowPopup(true);
+    }
+
+    const handleClosePopup = () => {
+        setShowPopup(false);
+        setSelectedSale(null);
+    }
+
+    const handlePrintReceipt = () => {
+        window.print();
     }
 
     if (loading) {
@@ -56,6 +73,7 @@ const SaleHistory = () => {
                         <th>Método de Pago</th>
                         <th>Estado</th>
                         <th>Hora</th>
+                        <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -84,6 +102,15 @@ const SaleHistory = () => {
                                               </span>
                                             </td>
                                             <td rowSpan={sale.items.length}>{formatDate(sale.createdAt)}</td>
+                                            <td rowSpan={sale.items.length}>
+                                                <button
+                                                    className="btn btn-primary btn-sm"
+                                                    onClick={() => handleViewReceipt(sale)}
+                                                >
+                                                    <i className="bi bi-eye me-1"></i>
+                                                    Ver Comprobante
+                                                </button>
+                                            </td>
                                         </>
                                     )}
                                 </tr>
@@ -92,6 +119,14 @@ const SaleHistory = () => {
                     </tbody>
                 </table>
             </div>
+
+            {showPopup && selectedSale && (
+                <ReceiptPopup
+                    orderDetails={selectedSale}
+                    onClose={handleClosePopup}
+                    onPrint={handlePrintReceipt}
+                />
+            )}
         </div>
     )
 }
