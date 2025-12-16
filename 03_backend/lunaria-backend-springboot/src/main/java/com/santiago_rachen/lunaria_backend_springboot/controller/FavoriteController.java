@@ -44,21 +44,40 @@ public class FavoriteController {
         return favoriteService.addToFavoritesByItemId(userId, itemId);
     }
 
+    @Operation(summary = "Remove item from favorites", description = "Removes an item from the authenticated user's favorites list.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Item removed from favorites successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing JWT token"),
+        @ApiResponse(responseCode = "404", description = "Item not found in favorites")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeFromFavorites(@PathVariable String itemId, Authentication authentication) {
+    public void removeFromFavorites(@Parameter(description = "ID of the item to remove from favorites") @PathVariable String itemId, Authentication authentication) {
         Long userId = getUserIdFromAuthentication(authentication);
         favoriteService.removeFromFavoritesByItemId(userId, itemId);
     }
 
+    @Operation(summary = "Get user favorites", description = "Retrieves all favorite items for the authenticated user.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "List of user's favorite items retrieved successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing JWT token")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping
     public List<FavoriteResponse> getUserFavorites(Authentication authentication) {
         Long userId = getUserIdFromAuthentication(authentication);
         return favoriteService.getUserFavorites(userId);
     }
 
+    @Operation(summary = "Check favorite status", description = "Checks if a specific item is in the authenticated user's favorites.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Favorite status returned successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing JWT token")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{itemId}/status")
-    public ResponseEntity<Map<String, Boolean>> checkFavoriteStatus(@PathVariable String itemId, Authentication authentication) {
+    public ResponseEntity<Map<String, Boolean>> checkFavoriteStatus(@Parameter(description = "ID of the item to check") @PathVariable String itemId, Authentication authentication) {
         Long userId = getUserIdFromAuthentication(authentication);
         boolean isFavorite = favoriteService.isFavoriteByItemId(userId, itemId);
         return ResponseEntity.ok(Map.of("isFavorite", isFavorite));
