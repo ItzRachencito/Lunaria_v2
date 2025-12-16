@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  BASE_URL: 'http://192.168.20.21:9090/api/v1.0', // Android emulator localhost
+  BASE_URL: 'http://10.50.208.83:9090/api/v1.0', // Android emulator localhost
   // BASE_URL: 'http://localhost:8080', // iOS simulator
   TIMEOUT: 10000,
 };

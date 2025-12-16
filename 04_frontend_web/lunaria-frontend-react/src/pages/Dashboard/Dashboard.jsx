@@ -48,7 +48,7 @@ const Dashboard = () => {
                             </div>
                             <div className="stat-content">
                                 <h3>Recaudado Hoy</h3>
-                                <p>${data.todaySales.toFixed(2)}</p>
+                                <p>${data.todaySales ? data.todaySales.toFixed(2) : '0.00'}</p>
                             </div>
                         </div>
 
@@ -58,7 +58,7 @@ const Dashboard = () => {
                             </div>
                             <div className="stat-content">
                                 <h3>Ventas de hoy</h3>
-                                <p>{data.todaySaleCount}</p>
+                                <p>{data.todaySaleCount || 0}</p>
                             </div>
                         </div>
                     </div>
@@ -84,7 +84,7 @@ const Dashboard = () => {
                                     <tr key={sale.saleId}>
                                         <td>{sale.saleId.substring(0,8)}...</td>
                                         <td>{sale.customerName}</td>
-                                        <td>${sale.grandTotal.toFixed(2)}</td>
+                                        <td>${sale.grandTotal ? sale.grandTotal.toFixed(2) : '0.00'}</td>
                                         <td>
                                             <span className={`payment-method ${sale.paymentMethod.toLowerCase()}`}>
                                                 {sale.paymentMethod}

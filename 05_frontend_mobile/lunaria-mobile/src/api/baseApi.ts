@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG, STORAGE_KEYS } from '../constants/config';
+import { Item, SaleResponse } from '../types/api';
 
 // Create base query with auth handling
 const baseQuery = fetchBaseQuery({
@@ -131,6 +132,12 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Items'],
     }),
+
+    // Sales endpoints
+    getLatestSales: builder.query<SaleResponse[], void>({
+      query: () => '/sales/latest',
+      providesTags: ['Sales'],
+    }),
   }),
 });
 
@@ -140,5 +147,6 @@ export const {
   useCreateItemMutation,
   useUpdateItemMutation,
   useDeleteItemMutation,
+  useGetLatestSalesQuery,
   usePrefetch,
 } = apiSlice;
