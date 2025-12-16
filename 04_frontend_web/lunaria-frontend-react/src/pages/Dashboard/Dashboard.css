@@ -1,7 +1,7 @@
-/* Remove vertical scrollbar and set full height */
+/* Allow vertical scrolling and set full height */
 body, html {
     height: 100%;
-    overflow-y: hidden;
+    overflow-y: auto;
 }
 
 .dashboard-wrapper {

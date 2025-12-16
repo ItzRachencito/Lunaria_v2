@@ -1,6 +1,6 @@
 .sales-history-container {
     padding: 20px;
-    height: calc(100vh - 5rem);
+    min-height: calc(100vh - 5rem);
     box-sizing: border-box;
     background-color: #2c3335;
 }
