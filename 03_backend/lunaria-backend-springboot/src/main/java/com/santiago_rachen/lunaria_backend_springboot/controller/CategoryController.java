@@ -38,7 +38,7 @@ public class CategoryController {
     @PostMapping("/admin/categories")
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryResponse addCategory(@Parameter(description = "Category data in JSON format") @RequestPart("category") String categoryString,
-                                        @Parameter(description = "Image file for the category") @RequestPart("file") MultipartFile file) {
+                                        @Parameter(description = "Image file for the category (optional)") @RequestPart(value = "file", required = false) MultipartFile file) {
         ObjectMapper objectMapper = new ObjectMapper();
         CategoryRequest request = null;
         try {

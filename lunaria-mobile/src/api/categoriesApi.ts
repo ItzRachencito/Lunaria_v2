@@ -6,6 +6,8 @@ import { Category } from '../types/api';
 interface CategoryRequest {
   name: string;
   description: string;
+  bgColor?: string;
+  image?: any;
 }
 
 interface CategoryResponse {
@@ -22,12 +24,18 @@ export const categoriesApi = createApi({
   reducerPath: 'categoriesApi',
   baseQuery: fetchBaseQuery({
     baseUrl: API_CONFIG.BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers, { getState, endpoint }) => {
       const token = (getState() as RootState).auth.token;
       // Include token for all requests (both public and protected)
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
+
+      // Don't set Content-Type for FormData requests (createCategory)
+      if (endpoint !== 'createCategory') {
+        headers.set('Content-Type', 'application/json');
+      }
+
       return headers;
     },
   }),
@@ -49,11 +57,38 @@ export const categoriesApi = createApi({
     }),
 
     createCategory: builder.mutation<Category, CategoryRequest>({
-      query: (category) => ({
-        url: '/admin/categories',
-        method: 'POST',
-        body: category,
-      }),
+      query: (category) => {
+        const formData = new FormData();
+
+        // Create the category JSON string
+        const categoryData = {
+          name: category.name,
+          description: category.description,
+          bgColor: category.bgColor || '#374151', // Default dark gray
+        };
+
+        formData.append('category', JSON.stringify(categoryData));
+
+        // Add image if provided
+        if (category.image) {
+          const imageUri = category.image.uri;
+          const filename = imageUri.split('/').pop() || 'image.jpg';
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+          formData.append('file', {
+            uri: imageUri,
+            name: filename,
+            type: type,
+          } as any);
+        }
+
+        return {
+          url: '/admin/categories',
+          method: 'POST',
+          body: formData,
+        };
+      },
       transformResponse: (response: CategoryResponse) => ({
         id: response.id,
         categoryId: response.categoryId,

@@ -10,19 +10,23 @@ import {
   Alert,
   ActivityIndicator,
   Modal,
+  Image,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { useGetCategoriesQuery, useCreateCategoryMutation, useDeleteCategoryMutation, useUpdateCategoryMutation } from '../../api/categoriesApi';
 import { Category } from '../../types/api';
+import * as ImagePicker from 'expo-image-picker';
 
 const ManageCategoriesScreen = () => {
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
+  const [categoryImage, setCategoryImage] = useState<any>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editImage, setEditImage] = useState<any>(null);
 
   const dispatch = useDispatch();
   const { data: categories, isLoading, error, refetch } = useGetCategoriesQuery();
@@ -34,6 +38,70 @@ const ManageCategoriesScreen = () => {
   console.log('ManageCategoriesScreen - Loading:', isLoading);
   console.log('ManageCategoriesScreen - Error:', error);
 
+  // Image picker functions
+  const pickImage = async () => {
+    Alert.alert(
+      'Seleccionar Imagen',
+      '¿Cómo quieres seleccionar la imagen?',
+      [
+        {
+          text: 'Cámara',
+          onPress: () => pickImageFromCamera(),
+        },
+        {
+          text: 'Galería',
+          onPress: () => pickImageFromGallery(),
+        },
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  const pickImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso denegado', 'Necesitas dar permiso para acceder a la cámara');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setCategoryImage(result.assets[0]);
+    }
+  };
+
+  const pickImageFromGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso denegado', 'Necesitas dar permiso para acceder a la galería');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setCategoryImage(result.assets[0]);
+    }
+  };
+
+  const removeImage = () => {
+    setCategoryImage(null);
+  };
+
   const handleCreateCategory = async () => {
     if (!categoryName.trim()) {
       Alert.alert('Error', 'El nombre de la categoría es obligatorio');
@@ -44,11 +112,13 @@ const ManageCategoriesScreen = () => {
       await createCategory({
         name: categoryName.trim(),
         description: categoryDescription.trim(),
+        image: categoryImage,
       }).unwrap();
 
       Alert.alert('Éxito', 'Categoría creada correctamente');
       setCategoryName('');
       setCategoryDescription('');
+      setCategoryImage(null);
       refetch();
     } catch (error: any) {
       Alert.alert('Error', error?.data?.message || 'Error al crear la categoría');
@@ -171,6 +241,39 @@ const ManageCategoriesScreen = () => {
             numberOfLines={3}
             placeholderTextColor="#666"
           />
+
+          {/* Image Picker */}
+          <View style={styles.imageSection}>
+            <Text style={styles.imageLabel}>Imagen de la categoría (opcional)</Text>
+            {categoryImage ? (
+              <View style={styles.imagePreviewContainer}>
+                <Image source={{ uri: categoryImage.uri }} style={styles.imagePreview} />
+                <View style={styles.imageActions}>
+                  <TouchableOpacity
+                    style={styles.changeImageButton}
+                    onPress={pickImage}
+                  >
+                    <MaterialIcons name="edit" size={16} color="#fff" />
+                    <Text style={styles.changeImageText}>Cambiar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.removeImageButton}
+                    onPress={removeImage}
+                  >
+                    <MaterialIcons name="delete" size={16} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.imagePickerButton}
+                onPress={pickImage}
+              >
+                <MaterialIcons name="add-photo-alternate" size={24} color="#dc3545" />
+                <Text style={styles.imagePickerText}>Seleccionar Imagen</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
           <TouchableOpacity
             style={[styles.createButton, isCreating && styles.buttonDisabled]}
@@ -455,6 +558,66 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '500',
+  },
+  imageSection: {
+    marginBottom: 16,
+  },
+  imageLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 8,
+  },
+  imagePickerButton: {
+    borderWidth: 2,
+    borderColor: '#ddd',
+    borderStyle: 'dashed',
+    borderRadius: 8,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f9fa',
+  },
+  imagePickerText: {
+    color: '#dc3545',
+    fontSize: 16,
+    fontWeight: '500',
+    marginTop: 8,
+  },
+  imagePreviewContainer: {
+    position: 'relative',
+    alignItems: 'center',
+  },
+  imagePreview: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#ddd',
+  },
+  imageActions: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 8,
+  },
+  changeImageButton: {
+    backgroundColor: '#28a745',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    gap: 4,
+  },
+  changeImageText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  removeImageButton: {
+    backgroundColor: '#dc3545',
+    padding: 8,
+    borderRadius: 6,
   },
 });
 
