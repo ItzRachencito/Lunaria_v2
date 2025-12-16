@@ -16,7 +16,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2C3335"
       },
-      "package": "com.santiagorachen.lunaria"
+      "package": "com.santiagorachen.lunaria",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

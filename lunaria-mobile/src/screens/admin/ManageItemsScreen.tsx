@@ -11,8 +11,10 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
+  Image,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useDispatch } from 'react-redux';
 import { useGetItemsQuery, useCreateItemMutation, useDeleteItemMutation, useUpdateItemMutation } from '../../api/baseApi';
 import { Item } from '../../types/api';
@@ -32,6 +34,8 @@ const ManageItemsScreen = () => {
   const [editStock, setEditStock] = useState('');
   const [editBrandId, setEditBrandId] = useState('');
   const [editCategoryId, setEditCategoryId] = useState('');
+  const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [editImage, setEditImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const dispatch = useDispatch();
   const { data: items, isLoading, error, refetch } = useGetItemsQuery();
@@ -42,6 +46,64 @@ const ManageItemsScreen = () => {
   console.log('ManageItemsScreen - Items:', items);
   console.log('ManageItemsScreen - Loading:', isLoading);
   console.log('ManageItemsScreen - Error:', error);
+
+  // Request permissions for camera and media library
+  useEffect(() => {
+    (async () => {
+      const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+      const mediaStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (cameraStatus.status !== 'granted' || mediaStatus.status !== 'granted') {
+        Alert.alert('Permisos requeridos', 'Se necesitan permisos de cámara y galería para seleccionar imágenes');
+      }
+    })();
+  }, []);
+
+  // Image picker functions
+  const pickImageFromGallery = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setSelectedImage(result.assets[0]);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Error al seleccionar imagen de la galería');
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setSelectedImage(result.assets[0]);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Error al tomar foto');
+    }
+  };
+
+  const showImagePickerOptions = () => {
+    Alert.alert(
+      'Seleccionar Imagen',
+      '¿Cómo quieres agregar la imagen?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Tomar Foto', onPress: takePhoto },
+        { text: 'Seleccionar de Galería', onPress: pickImageFromGallery },
+      ]
+    );
+  };
 
   const handleCreateItem = async () => {
     if (!itemName.trim() || !itemPrice.trim() || !itemStock.trim()) {
@@ -68,8 +130,9 @@ const ManageItemsScreen = () => {
         description: itemDescription.trim(),
         price: price,
         stock: stock,
-        brandId: selectedBrand || null,
-        categoryId: selectedCategory || null,
+        brandId: selectedBrand || undefined,
+        categoryId: selectedCategory || undefined,
+        image: selectedImage,
       }).unwrap();
 
       Alert.alert('Éxito', 'Producto creado correctamente');
@@ -79,6 +142,7 @@ const ManageItemsScreen = () => {
       setItemStock('');
       setSelectedBrand('');
       setSelectedCategory('');
+      setSelectedImage(null);
       refetch();
     } catch (error: any) {
       Alert.alert('Error', error?.data?.message || 'Error al crear el producto');
@@ -244,6 +308,32 @@ const ManageItemsScreen = () => {
               placeholderTextColor="#666"
             />
 
+            {/* Image picker */}
+            <Text style={styles.sectionSubtitle}>Imagen del Producto</Text>
+            <View style={styles.imagePickerContainer}>
+              <TouchableOpacity
+                style={styles.imagePickerButton}
+                onPress={showImagePickerOptions}
+              >
+                <MaterialIcons name="add-photo-alternate" size={24} color="#dc3545" />
+                <Text style={styles.imagePickerText}>
+                  {selectedImage ? 'Cambiar Imagen' : 'Seleccionar Imagen'}
+                </Text>
+              </TouchableOpacity>
+
+              {selectedImage && (
+                <View style={styles.imagePreviewContainer}>
+                  <Image source={{ uri: selectedImage.uri }} style={styles.imagePreview} />
+                  <TouchableOpacity
+                    style={styles.removeImageButton}
+                    onPress={() => setSelectedImage(null)}
+                  >
+                    <MaterialIcons name="close" size={20} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
             {/* TODO: Add brand and category pickers */}
             <Text style={styles.noteText}>Nota: Selección de marca y categoría próximamente</Text>
 
@@ -397,6 +487,56 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#dc3545',
     marginBottom: 16,
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  imagePickerContainer: {
+    marginBottom: 16,
+  },
+  imagePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f9fa',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    borderStyle: 'dashed',
+  },
+  imagePickerText: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#dc3545',
+    fontWeight: '500',
+  },
+  imagePreviewContainer: {
+    position: 'relative',
+    marginTop: 12,
+    alignSelf: 'center',
+  },
+  imagePreview: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#dc3545',
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#dc3545',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   input: {
     borderWidth: 1,

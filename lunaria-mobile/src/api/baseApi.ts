@@ -56,12 +56,44 @@ export const apiSlice = createApi({
       stock: number;
       brandId?: string;
       categoryId?: string;
+      image?: any;
     }>({
-      query: (item) => ({
-        url: '/admin/items',
-        method: 'POST',
-        body: item,
-      }),
+      query: (item) => {
+        const formData = new FormData();
+
+        // Create the item JSON string
+        const itemData = {
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          stock: item.stock,
+          brandId: item.brandId,
+          categoryId: item.categoryId,
+        };
+
+        formData.append('item', JSON.stringify(itemData));
+
+        // Add image if provided
+        if (item.image) {
+          const imageUri = item.image.uri;
+          const filename = imageUri.split('/').pop() || 'image.jpg';
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+          formData.append('file', {
+            uri: imageUri,
+            name: filename,
+            type: type,
+          } as any);
+        }
+
+        return {
+          url: '/admin/items',
+          method: 'POST',
+          body: formData,
+          formData: true,
+        };
+      },
       invalidatesTags: ['Items'],
     }),
 
