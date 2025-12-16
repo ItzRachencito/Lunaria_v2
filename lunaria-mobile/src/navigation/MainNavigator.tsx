@@ -15,7 +15,7 @@ import ProfileScreen from '../screens/main/ProfileScreen';
 // Admin screens (to be created)
 import ManageItemsScreen from '../screens/admin/ManageItemsScreen';
 import ManageBrandsScreen from '../screens/admin/ManageBrandsScreen';
-import ManageStockScreen from '../screens/admin/ManageStockScreen';
+import ManageCategoriesScreen from '../screens/admin/ManageCategoriesScreen';
 import SaleHistoryScreen from '../screens/admin/SaleHistoryScreen';
 
 // Logout Button Component
@@ -64,7 +64,7 @@ export type AdminTabParamList = {
   Dashboard: undefined;
   ManageItems: undefined;
   ManageBrands: undefined;
-  ManageStock: undefined;
+  ManageCategories: undefined;
   SaleHistory: undefined;
 };
 
@@ -139,8 +139,8 @@ const AdminNavigator = () => {
             iconName = 'inventory';
           } else if (route.name === 'ManageBrands') {
             iconName = 'business';
-          } else if (route.name === 'ManageStock') {
-            iconName = 'warehouse';
+          } else if (route.name === 'ManageCategories') {
+            iconName = 'category';
           } else if (route.name === 'SaleHistory') {
             iconName = 'receipt';
           }
@@ -175,9 +175,9 @@ const AdminNavigator = () => {
         options={{ title: 'Marcas' }}
       />
       <AdminTab.Screen
-        name="ManageStock"
-        component={ManageStockScreen}
-        options={{ title: 'Inventario' }}
+        name="ManageCategories"
+        component={ManageCategoriesScreen}
+        options={{ title: 'Categorías' }}
       />
       <AdminTab.Screen
         name="SaleHistory"

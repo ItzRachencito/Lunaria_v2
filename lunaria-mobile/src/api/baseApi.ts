@@ -42,10 +42,63 @@ export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Items', 'Categories', 'Brands', 'Sales', 'Favorites', 'User'],
-  endpoints: () => ({}),
+  endpoints: (builder) => ({
+    // Items endpoints
+    getItems: builder.query<Item[], void>({
+      query: () => '/items',
+      providesTags: ['Items'],
+    }),
+
+    createItem: builder.mutation<Item, {
+      name: string;
+      description: string;
+      price: number;
+      stock: number;
+      brandId?: string;
+      categoryId?: string;
+    }>({
+      query: (item) => ({
+        url: '/admin/items',
+        method: 'POST',
+        body: item,
+      }),
+      invalidatesTags: ['Items'],
+    }),
+
+    updateItem: builder.mutation<Item, {
+      itemId: string;
+      item: {
+        name: string;
+        description: string;
+        price: number;
+        stock: number;
+        brandId?: string;
+        categoryId?: string;
+      };
+    }>({
+      query: ({ itemId, item }) => ({
+        url: `/admin/items/${itemId}`,
+        method: 'PUT',
+        body: item,
+      }),
+      invalidatesTags: ['Items'],
+    }),
+
+    deleteItem: builder.mutation<void, string>({
+      query: (itemId) => ({
+        url: `/admin/items/${itemId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Items'],
+    }),
+  }),
 });
 
 // Export hooks for usage in components
 export const {
+  useGetItemsQuery,
+  useCreateItemMutation,
+  useUpdateItemMutation,
+  useDeleteItemMutation,
   usePrefetch,
 } = apiSlice;
