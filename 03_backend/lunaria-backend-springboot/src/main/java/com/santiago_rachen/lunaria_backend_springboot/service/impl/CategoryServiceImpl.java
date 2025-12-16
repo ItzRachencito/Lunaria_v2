@@ -1,5 +1,6 @@
 package com.santiago_rachen.lunaria_backend_springboot.service.impl;
 
+import com.santiago_rachen.lunaria_backend_springboot.config.AppConfig;
 import com.santiago_rachen.lunaria_backend_springboot.entity.CategoryEntity;
 import com.santiago_rachen.lunaria_backend_springboot.io.CategoryRequest;
 import com.santiago_rachen.lunaria_backend_springboot.io.CategoryResponse;
@@ -29,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final FileUploadService fileUploadService;
     private final ItemRepository itemRepository;
+    private final AppConfig appConfig;
 
     public CategoryResponse add(CategoryRequest request, MultipartFile file) throws IOException {
         String imgUrl = null;
@@ -40,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
             Files.createDirectories(uploadPath);
             Path targetLocation = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            imgUrl = "http://localhost:9090/api/v1.0/uploads/"+fileName;
+            imgUrl = appConfig.getServerUrl() + "/api/v1.0/uploads/"+fileName;
         } else {
             // Default image or placeholder
             imgUrl = "https://via.placeholder.com/300x300?text=No+Image";
@@ -99,12 +101,19 @@ public class CategoryServiceImpl implements CategoryService {
 
     private CategoryResponse convertToResponse(CategoryEntity newCategory) {
         Integer itemsCount = itemRepository.countByCategoryId(newCategory.getId());
+
+        // Process imgUrl to replace localhost with configured server URL for mobile compatibility
+        String processedImgUrl = newCategory.getImgUrl();
+        if (processedImgUrl != null && processedImgUrl.contains("localhost")) {
+            processedImgUrl = processedImgUrl.replace("http://localhost:9090/api/v1.0", appConfig.getServerUrl() + "/api/v1.0");
+        }
+
         return CategoryResponse.builder()
                 .categoryId(newCategory.getCategoryId())
                 .name(newCategory.getName())
                 .description(newCategory.getDescription())
                 .bgColor(newCategory.getBgColor())
-                .imgUrl(newCategory.getImgUrl())
+                .imgUrl(processedImgUrl)
                 .createdAt(newCategory.getCreatedAt())
                 .updatedAt(newCategory.getUpdatedAt())
                 .items(itemsCount)

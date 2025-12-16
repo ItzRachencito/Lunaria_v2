@@ -28,4 +28,5 @@ public class ItemResponse {
     private Timestamp updatedAt;
     private Integer stockQuantity;
     private StockStatus stockStatus;
+    private Boolean canDelete;
 }

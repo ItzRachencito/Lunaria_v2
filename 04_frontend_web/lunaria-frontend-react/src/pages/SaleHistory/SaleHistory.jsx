@@ -2,12 +2,14 @@ import './SaleHistory.css';
 import {useEffect, useState} from "react";
 import {latestSales} from "../../Service/SaleService.js";
 import ReceiptPopup from "../../components/ReceiptPopup/ReceiptPopup.jsx";
+import SearchBox from "../../components/SearchBox/SearchBox.jsx";
 
 const SaleHistory = () => {
     const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showPopup, setShowPopup] = useState(false);
     const [selectedSale, setSelectedSale] = useState(null);
+    const [searchText, setSearchText] = useState("");
 
     useEffect(() => {
         const fetchSales = async () => {
@@ -48,6 +50,13 @@ const SaleHistory = () => {
         window.print();
     }
 
+    // Filter sales based on search text (customer name, phone number, or sale ID)
+    const filteredSales = sales.filter(sale =>
+        sale.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+        sale.phoneNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+        sale.saleId.toLowerCase().includes(searchText.toLowerCase())
+    );
+
     if (loading) {
         return <div className="text-center py-4">Buscando ventas...</div>
     }
@@ -58,7 +67,12 @@ const SaleHistory = () => {
 
     return (
         <div className="sales-history-container">
-            <h2 className="mb-2 text-light">Ventas encontradas: </h2>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="mb-0 text-light">Ventas encontradas: {filteredSales.length}</h2>
+                <div style={{width: '300px'}}>
+                    <SearchBox onSearch={setSearchText} placeholder="Buscar por cliente, teléfono o ID..." />
+                </div>
+            </div>
 
             <div className="table-responsive">
                 <table className="table table-striped table-hover">
@@ -77,7 +91,7 @@ const SaleHistory = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {sales.map(sale =>
+                     {filteredSales.map(sale =>
                             sale.items.map((item, index) => (
                                 <tr key={`${sale.saleId}-${index}`}>
                                     {index === 0 && (

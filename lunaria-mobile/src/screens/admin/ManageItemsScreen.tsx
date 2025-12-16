@@ -21,6 +21,7 @@ import { useGetItemsQuery, useCreateItemMutation, useDeleteItemMutation, useUpda
 import { useGetBrandsQuery } from '../../api/brandsApi';
 import { useGetCategoriesQuery } from '../../api/categoriesApi';
 import { Item, Brand, Category } from '../../types/api';
+import { API_CONFIG } from '../../constants/config';
 
 const ManageItemsScreen = () => {
   const [itemName, setItemName] = useState('');
@@ -244,32 +245,62 @@ const ManageItemsScreen = () => {
     }
   };
 
-  const renderItem = ({ item }: { item: Item }) => (
-    <View style={styles.itemCard}>
-      <View style={styles.itemInfo}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemDescription}>{item.description}</Text>
-        <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
-        <Text style={styles.itemStock}>Stock: {item.stockQuantity}</Text>
+  const renderItem = ({ item }: { item: Item }) => {
+    // Replace localhost URLs with configured server URL for mobile compatibility
+    const processedImgUrl = item.imgUrl ? item.imgUrl.replace('http://localhost:9090/api/v1.0', API_CONFIG.BASE_URL) : null;
+    console.log('Rendering item:', item.name, 'original imgUrl:', item.imgUrl, 'processed:', processedImgUrl);
+
+    return (
+      <View style={styles.itemCard}>
+        {processedImgUrl ? (
+          <Image
+            source={{ uri: processedImgUrl }}
+            style={styles.itemImage}
+            onError={(error) => console.log('Image load error for', item.name, ':', error.nativeEvent)}
+            onLoad={() => console.log('Image loaded successfully for', item.name)}
+          />
+        ) : (
+          <View style={[styles.itemImage, styles.placeholderImage]}>
+            <MaterialIcons name="image" size={32} color="#ccc" />
+          </View>
+        )}
+        <View style={styles.itemInfo}>
+          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.itemDescription}>{item.description}</Text>
+          <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+          <Text style={styles.itemStock}>Stock: {item.stockQuantity}</Text>
+          {item.brand && (
+            <Text style={styles.itemBrand}>Marca: {item.brand.name}</Text>
+          )}
+          {item.category && (
+            <Text style={styles.itemCategory}>Categoría: {item.category.name}</Text>
+          )}
+        </View>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            onPress={() => openEditModal(item)}
+            style={styles.editButton}
+            disabled={isUpdating}
+          >
+            <MaterialIcons name="edit" size={24} color="#007bff" />
+          </TouchableOpacity>
+          {item.canDelete ? (
+            <TouchableOpacity
+              onPress={() => handleDeleteItem(item)}
+              style={styles.deleteButton}
+              disabled={isDeleting}
+            >
+              <MaterialIcons name="delete" size={24} color="#dc3545" />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.disabledButton}>
+              <MaterialIcons name="delete" size={24} color="#ccc" />
+            </View>
+          )}
+        </View>
       </View>
-      <View style={styles.actionButtons}>
-        <TouchableOpacity
-          onPress={() => openEditModal(item)}
-          style={styles.editButton}
-          disabled={isUpdating}
-        >
-          <MaterialIcons name="edit" size={24} color="#007bff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleDeleteItem(item)}
-          style={styles.deleteButton}
-          disabled={isDeleting}
-        >
-          <MaterialIcons name="delete" size={24} color="#dc3545" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -678,6 +709,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 1.0,
   },
+  itemImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  placeholderImage: {
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderStyle: 'dashed',
+    borderColor: '#ccc',
+  },
   itemInfo: {
     flex: 1,
   },
@@ -702,6 +748,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6c757d',
   },
+  itemBrand: {
+    fontSize: 12,
+    color: '#007bff',
+    fontStyle: 'italic',
+  },
+  itemCategory: {
+    fontSize: 12,
+    color: '#28a745',
+    fontStyle: 'italic',
+  },
   actionButtons: {
     flexDirection: 'row',
     gap: 8,
@@ -711,6 +767,10 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 8,
+  },
+  disabledButton: {
+    padding: 8,
+    opacity: 0.5,
   },
   emptyContainer: {
     alignItems: 'center',

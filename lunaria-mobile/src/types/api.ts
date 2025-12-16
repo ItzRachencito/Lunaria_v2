@@ -42,6 +42,7 @@ export interface Item {
   brand?: Brand;
   createdAt: string;
   updatedAt: string;
+  canDelete?: boolean;
 }
 
 export interface SaleItem {

@@ -1,5 +1,6 @@
 package com.santiago_rachen.lunaria_backend_springboot.service.impl;
 
+import com.santiago_rachen.lunaria_backend_springboot.config.AppConfig;
 import com.santiago_rachen.lunaria_backend_springboot.entity.BrandEntity;
 import com.santiago_rachen.lunaria_backend_springboot.entity.CategoryEntity;
 import com.santiago_rachen.lunaria_backend_springboot.entity.ItemEntity;
@@ -8,6 +9,7 @@ import com.santiago_rachen.lunaria_backend_springboot.io.ItemResponse;
 import com.santiago_rachen.lunaria_backend_springboot.repository.BrandRepository;
 import com.santiago_rachen.lunaria_backend_springboot.repository.CategoryRepository;
 import com.santiago_rachen.lunaria_backend_springboot.repository.ItemRepository;
+import com.santiago_rachen.lunaria_backend_springboot.repository.SaleItemEntityRepository;
 import com.santiago_rachen.lunaria_backend_springboot.service.FileUploadService;
 import com.santiago_rachen.lunaria_backend_springboot.service.ItemService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,8 @@ public class ItemServiceImpl implements ItemService {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final ItemRepository itemRepository;
+    private final SaleItemEntityRepository saleItemEntityRepository;
+    private final AppConfig appConfig;
 
     @Override
     public ItemResponse add(ItemRequest request, MultipartFile file) throws IOException {
@@ -46,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
             Files.createDirectories(uploadPath);
             Path targetLocation = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            imgUrl = "http://localhost:9090/api/v1.0/uploads/"+fileName;
+            imgUrl = appConfig.getServerUrl() + "/api/v1.0/uploads/"+fileName;
         } else {
             // Default image or placeholder
             imgUrl = "https://via.placeholder.com/300x300?text=No+Image";
@@ -68,6 +72,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private ItemResponse convertToResponse(ItemEntity newItem) {
+        // Check if item has any sales - if so, it cannot be deleted
+        long salesCount = saleItemEntityRepository.countByItemId(newItem.getItemId());
+        boolean canDelete = salesCount == 0;
+
         return ItemResponse.builder()
                 .id(newItem.getId())
                 .itemId(newItem.getItemId())
@@ -83,6 +91,7 @@ public class ItemServiceImpl implements ItemService {
                 .updatedAt(newItem.getUpdatedAt())
                 .stockQuantity(newItem.getStock())
                 .stockStatus(newItem.getStockStatus())
+                .canDelete(canDelete)
                 .build();
     }
 
@@ -149,6 +158,13 @@ public class ItemServiceImpl implements ItemService {
     public void deleteItem(String itemId) {
         ItemEntity existingItem = itemRepository.findByItemId(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found: "+itemId));
+
+        // Check if item has any sales - prevent deletion if it does
+        long salesCount = saleItemEntityRepository.countByItemId(itemId);
+        if (salesCount > 0) {
+            throw new RuntimeException("Cannot delete item: it has been sold " + salesCount + " time(s)");
+        }
+
         //boolean isFileDelete = fileUploadService.deleteFile(existingItem.getImgUrl());
         String imgUrl = existingItem.getImgUrl();
         String fileName = imgUrl.substring(imgUrl.lastIndexOf("/")+1);

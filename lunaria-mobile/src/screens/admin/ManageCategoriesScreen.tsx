@@ -17,6 +17,7 @@ import { useDispatch } from 'react-redux';
 import { useGetCategoriesQuery, useCreateCategoryMutation, useDeleteCategoryMutation, useUpdateCategoryMutation } from '../../api/categoriesApi';
 import { Category } from '../../types/api';
 import * as ImagePicker from 'expo-image-picker';
+import { API_CONFIG } from '../../constants/config';
 
 const ManageCategoriesScreen = () => {
   const [categoryName, setCategoryName] = useState('');
@@ -37,6 +38,13 @@ const ManageCategoriesScreen = () => {
   console.log('ManageCategoriesScreen - Categories:', categories);
   console.log('ManageCategoriesScreen - Loading:', isLoading);
   console.log('ManageCategoriesScreen - Error:', error);
+
+  // Debug category images
+  if (categories) {
+    categories.forEach((cat: Category) => {
+      console.log(`Category ${cat.name}: imgUrl = ${cat.imgUrl}`);
+    });
+  }
 
   // Image picker functions
   const pickImage = async () => {
@@ -190,32 +198,50 @@ const ManageCategoriesScreen = () => {
     }
   };
 
-  const renderCategoryItem = ({ item }: { item: Category }) => (
-    <View style={styles.categoryItem}>
-      <View style={styles.categoryInfo}>
-        <Text style={styles.categoryName}>{item.name}</Text>
-        {item.description && (
-          <Text style={styles.categoryDescription}>{item.description}</Text>
+  const renderCategoryItem = ({ item }: { item: Category }) => {
+    // Replace localhost URLs with configured server URL for mobile compatibility
+    const processedImgUrl = item.imgUrl ? item.imgUrl.replace('http://localhost:9090/api/v1.0', API_CONFIG.BASE_URL) : null;
+    console.log('Rendering category:', item.name, 'original imgUrl:', item.imgUrl, 'processed:', processedImgUrl);
+
+    return (
+      <View style={styles.categoryItem}>
+        {processedImgUrl ? (
+          <Image
+            source={{ uri: processedImgUrl }}
+            style={styles.categoryImage}
+            onError={(error) => console.log('Image load error for category', item.name, ':', error.nativeEvent)}
+            onLoad={() => console.log('Image loaded successfully for category', item.name)}
+          />
+        ) : (
+          <View style={[styles.categoryImage, styles.placeholderImage]}>
+            <MaterialIcons name="image" size={32} color="#ccc" />
+          </View>
         )}
+        <View style={styles.categoryInfo}>
+          <Text style={styles.categoryName}>{item.name}</Text>
+          {item.description && (
+            <Text style={styles.categoryDescription}>{item.description}</Text>
+          )}
+        </View>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            onPress={() => openEditModal(item)}
+            style={styles.editButton}
+            disabled={isUpdating}
+          >
+            <MaterialIcons name="edit" size={24} color="#007bff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleDeleteCategory(item)}
+            style={styles.deleteButton}
+            disabled={isDeleting}
+          >
+            <MaterialIcons name="delete" size={24} color="#dc3545" />
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.actionButtons}>
-        <TouchableOpacity
-          onPress={() => openEditModal(item)}
-          style={styles.editButton}
-          disabled={isUpdating}
-        >
-          <MaterialIcons name="edit" size={24} color="#007bff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleDeleteCategory(item)}
-          style={styles.deleteButton}
-          disabled={isDeleting}
-        >
-          <MaterialIcons name="delete" size={24} color="#dc3545" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -447,6 +473,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.18,
     shadowRadius: 1.0,
+  },
+  categoryImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  placeholderImage: {
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderStyle: 'dashed',
+    borderColor: '#ccc',
   },
   categoryInfo: {
     flex: 1,

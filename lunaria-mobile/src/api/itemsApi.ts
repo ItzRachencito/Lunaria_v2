@@ -5,6 +5,31 @@ export const itemsApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getItems: builder.query<Item[], void>({
       query: () => '/items',
+      transformResponse: (response: any[]) =>
+        response.map(item => ({
+          id: item.id,
+          itemId: item.itemId,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          imgUrl: item.imgUrl,
+          stockQuantity: item.stockQuantity,
+          category: item.categoryName ? {
+            id: item.categoryId,
+            categoryId: item.categoryId,
+            name: item.categoryName,
+            description: '',
+          } : undefined,
+          brand: item.brandName ? {
+            id: item.brandId,
+            brandId: item.brandId,
+            name: item.brandName,
+            description: '',
+          } : undefined,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+          canDelete: item.canDelete,
+        })),
       providesTags: ['Items'],
     }),
 
