@@ -13,11 +13,14 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useDispatch } from 'react-redux';
 import { useGetItemsQuery, useCreateItemMutation, useDeleteItemMutation, useUpdateItemMutation } from '../../api/baseApi';
-import { Item } from '../../types/api';
+import { useGetBrandsQuery } from '../../api/brandsApi';
+import { useGetCategoriesQuery } from '../../api/categoriesApi';
+import { Item, Brand, Category } from '../../types/api';
 
 const ManageItemsScreen = () => {
   const [itemName, setItemName] = useState('');
@@ -39,6 +42,8 @@ const ManageItemsScreen = () => {
 
   const dispatch = useDispatch();
   const { data: items, isLoading, error, refetch } = useGetItemsQuery();
+  const { data: brands } = useGetBrandsQuery();
+  const { data: categories } = useGetCategoriesQuery();
   const [createItem, { isLoading: isCreating }] = useCreateItemMutation();
   const [updateItem, { isLoading: isUpdating }] = useUpdateItemMutation();
   const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
@@ -193,6 +198,8 @@ const ManageItemsScreen = () => {
     setEditDescription('');
     setEditPrice('');
     setEditStock('');
+    setEditBrandId('');
+    setEditCategoryId('');
   };
 
   const handleEditItem = async () => {
@@ -334,8 +341,40 @@ const ManageItemsScreen = () => {
               )}
             </View>
 
-            {/* TODO: Add brand and category pickers */}
-            <Text style={styles.noteText}>Nota: Selección de marca y categoría próximamente</Text>
+            {/* Brand and Category selection */}
+            <Text style={styles.sectionSubtitle}>Marca y Categoría</Text>
+
+            <View style={styles.pickerContainer}>
+              <Text style={styles.pickerLabel}>Seleccionar Marca:</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={selectedBrand}
+                  onValueChange={(itemValue) => setSelectedBrand(itemValue)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Seleccionar marca..." value="" />
+                  {brands?.map((brand) => (
+                    <Picker.Item key={brand.brandId} label={brand.name} value={brand.brandId} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+
+            <View style={styles.pickerContainer}>
+              <Text style={styles.pickerLabel}>Seleccionar Categoría:</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={selectedCategory}
+                  onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Seleccionar categoría..." value="" />
+                  {categories?.map((category) => (
+                    <Picker.Item key={category.categoryId} label={category.name} value={category.categoryId} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
 
             <TouchableOpacity
               style={[styles.createButton, isCreating && styles.buttonDisabled]}
@@ -428,6 +467,38 @@ const ManageItemsScreen = () => {
                 keyboardType="numeric"
                 placeholderTextColor="#666"
               />
+
+              <View style={styles.modalPickerContainer}>
+                <Text style={styles.modalPickerLabel}>Marca:</Text>
+                <View style={styles.modalPickerWrapper}>
+                  <Picker
+                    selectedValue={editBrandId}
+                    onValueChange={(itemValue) => setEditBrandId(itemValue)}
+                    style={styles.modalPicker}
+                  >
+                    <Picker.Item label="Seleccionar marca..." value="" />
+                    {brands?.map((brand) => (
+                      <Picker.Item key={brand.brandId} label={brand.name} value={brand.brandId} />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+
+              <View style={styles.modalPickerContainer}>
+                <Text style={styles.modalPickerLabel}>Categoría:</Text>
+                <View style={styles.modalPickerWrapper}>
+                  <Picker
+                    selectedValue={editCategoryId}
+                    onValueChange={(itemValue) => setEditCategoryId(itemValue)}
+                    style={styles.modalPicker}
+                  >
+                    <Picker.Item label="Seleccionar categoría..." value="" />
+                    {categories?.map((category) => (
+                      <Picker.Item key={category.categoryId} label={category.name} value={category.categoryId} />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
             </ScrollView>
 
             <View style={styles.modalFooter}>
@@ -537,6 +608,26 @@ const styles = StyleSheet.create({
     height: 24,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pickerContainer: {
+    marginBottom: 16,
+  },
+  pickerLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 8,
+  },
+  pickerWrapper: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#f8f9fa',
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
@@ -708,6 +799,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '500',
+  },
+  modalPickerContainer: {
+    marginBottom: 12,
+  },
+  modalPickerLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 4,
+  },
+  modalPickerWrapper: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    backgroundColor: '#f8f9fa',
+    overflow: 'hidden',
+  },
+  modalPicker: {
+    height: 40,
+    color: '#333',
+    fontSize: 14,
   },
 });
 

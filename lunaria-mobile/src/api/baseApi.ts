@@ -5,7 +5,7 @@ import { API_CONFIG, STORAGE_KEYS } from '../constants/config';
 // Create base query with auth handling
 const baseQuery = fetchBaseQuery({
   baseUrl: API_CONFIG.BASE_URL,
-  prepareHeaders: async (headers) => {
+  prepareHeaders: async (headers, { getState, endpoint }) => {
     try {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       if (token) {
@@ -14,7 +14,12 @@ const baseQuery = fetchBaseQuery({
     } catch (error) {
       console.error('Error getting auth token:', error);
     }
-    headers.set('Content-Type', 'application/json');
+
+    // Don't set Content-Type for FormData requests (createItem)
+    if (endpoint !== 'createItem') {
+      headers.set('Content-Type', 'application/json');
+    }
+
     return headers;
   },
 });
@@ -66,9 +71,9 @@ export const apiSlice = createApi({
           name: item.name,
           description: item.description,
           price: item.price,
-          stock: item.stock,
-          brandId: item.brandId,
-          categoryId: item.categoryId,
+          stockQuantity: item.stock,
+          brandId: item.brandId || null,
+          categoryId: item.categoryId || null,
         };
 
         formData.append('item', JSON.stringify(itemData));
@@ -91,7 +96,6 @@ export const apiSlice = createApi({
           url: '/admin/items',
           method: 'POST',
           body: formData,
-          formData: true,
         };
       },
       invalidatesTags: ['Items'],
@@ -111,7 +115,11 @@ export const apiSlice = createApi({
       query: ({ itemId, item }) => ({
         url: `/admin/items/${itemId}`,
         method: 'PUT',
-        body: item,
+        body: {
+          ...item,
+          stockQuantity: item.stock,
+          stock: undefined,
+        },
       }),
       invalidatesTags: ['Items'],
     }),

@@ -37,13 +37,20 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemResponse add(ItemRequest request, MultipartFile file) throws IOException {
-        //String imgUrl = fileUploadService.uploadFile(file);
-        String fileName = UUID.randomUUID().toString()+"."+ StringUtils.getFilenameExtension(file.getOriginalFilename());
-        Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
-        Path targetLocation = uploadPath.resolve(fileName);
-        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-        String imgUrl = "http://localhost:9090/api/v1.0/uploads/"+fileName;
+        String imgUrl = null;
+
+        if (file != null && !file.isEmpty()) {
+            //String imgUrl = fileUploadService.uploadFile(file);
+            String fileName = UUID.randomUUID().toString()+"."+ StringUtils.getFilenameExtension(file.getOriginalFilename());
+            Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
+            Files.createDirectories(uploadPath);
+            Path targetLocation = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            imgUrl = "http://localhost:9090/api/v1.0/uploads/"+fileName;
+        } else {
+            // Default image or placeholder
+            imgUrl = "https://via.placeholder.com/300x300?text=No+Image";
+        }
         ItemEntity newItem = convertToEntity(request);
         CategoryEntity existingCategory = categoryRepository.findByCategoryId(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found: "+request.getCategoryId()));

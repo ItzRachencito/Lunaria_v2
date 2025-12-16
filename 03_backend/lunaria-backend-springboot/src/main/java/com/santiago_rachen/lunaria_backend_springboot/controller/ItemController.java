@@ -37,7 +37,7 @@ public class ItemController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/admin/items")
     public ItemResponse addItem(@Parameter(description = "Item data in JSON format") @RequestPart("item") String itemString,
-                                @Parameter(description = "Image file for the item") @RequestPart("file") MultipartFile file) {
+                                @Parameter(description = "Image file for the item (optional)") @RequestPart(value = "file", required = false) MultipartFile file) {
         ObjectMapper objectMapper = new ObjectMapper();
         ItemRequest itemRequest = null;
         try {
