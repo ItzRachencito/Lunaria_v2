@@ -100,8 +100,9 @@ export interface SaleRequest {
 
 // API Response Types
 export interface AuthResponse {
+  email: string;
   token: string;
-  user: User;
+  role: string;
 }
 
 export interface ApiResponse<T> {

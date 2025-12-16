@@ -5,14 +5,10 @@ import { RootState } from '../../store/store';
 
 const DashboardScreen = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const isAdmin = user?.role === 'ROLE_ADMIN';
 
-  return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>¡Bienvenido!</Text>
-        <Text style={styles.userName}>{user?.name || 'Usuario'}</Text>
-      </View>
-
+  const UserDashboard = () => (
+    <>
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>0</Text>
@@ -27,14 +23,57 @@ const DashboardScreen = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
         <View style={styles.quickActions}>
-          <View style={styles.actionButton}>
+          <View style={[styles.actionButton, styles.exploreButton]}>
             <Text style={styles.actionText}>Explorar Productos</Text>
           </View>
-          <View style={styles.actionButton}>
+          <View style={[styles.actionButton, styles.favoritesButton]}>
             <Text style={styles.actionText}>Ver Favoritos</Text>
           </View>
         </View>
       </View>
+    </>
+  );
+
+  const AdminDashboard = () => (
+    <>
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statLabel}>Productos Totales</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statLabel}>Ventas del Día</Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Panel de Administración</Text>
+        <View style={styles.adminActions}>
+          <View style={[styles.actionButton, styles.adminButton]}>
+            <Text style={styles.actionText}>Gestionar Productos</Text>
+          </View>
+          <View style={[styles.actionButton, styles.adminButton]}>
+            <Text style={styles.actionText}>Ver Reportes</Text>
+          </View>
+        </View>
+      </View>
+    </>
+  );
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={[styles.header, isAdmin && styles.adminHeader]}>
+        <Text style={styles.welcomeText}>
+          {isAdmin ? 'Panel Administrativo' : '¡Bienvenido!'}
+        </Text>
+        <Text style={styles.userName}>{user?.name || 'Usuario'}</Text>
+        <Text style={styles.roleText}>
+          {isAdmin ? 'Administrador' : 'Cliente'}
+        </Text>
+      </View>
+
+      {isAdmin ? <AdminDashboard /> : <UserDashboard />}
     </ScrollView>
   );
 };
@@ -49,6 +88,9 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 40,
   },
+  adminHeader: {
+    backgroundColor: '#8B0000',
+  },
   welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -58,6 +100,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#007bff',
     marginTop: 5,
+  },
+  roleText: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.8,
+    marginTop: 2,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -101,6 +149,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  adminActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   actionButton: {
     backgroundColor: '#007bff',
     borderRadius: 10,
@@ -108,6 +160,15 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 5,
     alignItems: 'center',
+  },
+  exploreButton: {
+    backgroundColor: '#28a745',
+  },
+  favoritesButton: {
+    backgroundColor: '#ffc107',
+  },
+  adminButton: {
+    backgroundColor: '#dc3545',
   },
   actionText: {
     color: '#fff',

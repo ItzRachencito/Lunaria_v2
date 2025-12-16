@@ -33,9 +33,21 @@ const LoginScreen = () => {
 
     try {
       const result = await login({ email, password }).unwrap();
+
+      // Create user object from login response
+      const user = {
+        id: 0, // We'll get this from a separate call if needed
+        userId: '',
+        email: result.email,
+        name: result.email.split('@')[0], // Temporary name from email
+        role: result.role,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
       dispatch(setCredentials({
         token: result.token,
-        user: result.user,
+        user: user,
       }));
     } catch (error: any) {
       Alert.alert('Error', error?.data?.message || 'Error al iniciar sesión');
