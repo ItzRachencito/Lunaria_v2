@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Lunaria Mobile",
+    "slug": "lunaria-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2C3335"
+      },
+      "package": "com.santiagorachen.lunaria"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

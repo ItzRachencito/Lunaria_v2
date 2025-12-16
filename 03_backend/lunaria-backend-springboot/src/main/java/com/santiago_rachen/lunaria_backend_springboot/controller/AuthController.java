@@ -7,6 +7,10 @@ import com.santiago_rachen.lunaria_backend_springboot.io.UserResponse;
 import com.santiago_rachen.lunaria_backend_springboot.service.UserService;
 import com.santiago_rachen.lunaria_backend_springboot.service.impl.AppUserDetailsService;
 import com.santiago_rachen.lunaria_backend_springboot.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +30,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "API for user authentication, registration, and login")
 public class AuthController {
 
     private final PasswordEncoder passwordEncoder;
@@ -36,6 +41,12 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
 
+    @Operation(summary = "User login", description = "Authenticates a user with email and password, returns JWT token and user role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Login successful, returns JWT token"),
+        @ApiResponse(responseCode = "400", description = "Invalid credentials - email or password incorrect"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) throws Exception {
         authenticate(request.getEmail(), request.getPassword());
@@ -55,6 +66,11 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "User registration", description = "Registers a new user with the provided details. Automatically assigns ROLE_USER role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "User registered successfully"),
+        @ApiResponse(responseCode = "400", description = "Registration failed - invalid data or user already exists")
+    })
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRequest request) {
         try {
@@ -67,6 +83,10 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Encode password", description = "Utility endpoint to encode a password using BCrypt. Intended for development/testing purposes.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Password encoded successfully")
+    })
     @PostMapping("/encode")
     public String encodePassword(@RequestBody Map<String, String> request) {
         return passwordEncoder.encode(request.get("password"));
