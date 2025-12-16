@@ -60,3 +60,68 @@
 .card-text {
     color: #adb5bd !important;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .favorites-container {
+        padding: 15px 10px;
+    }
+
+    .favorites-empty,
+    .favorites-grid {
+        padding: 20px;
+        margin-top: 15px;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .card-img-container {
+        position: relative;
+    }
+
+    .favorite-remove-btn {
+        top: 8px;
+        right: 8px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .favorites-container {
+        padding: 10px 5px;
+    }
+
+    .favorites-empty,
+    .favorites-grid {
+        padding: 15px;
+    }
+
+    .favorites-empty h4 {
+        font-size: 1.2rem;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+    }
+
+    .card-text {
+        font-size: 0.85rem;
+    }
+
+    .favorite-remove-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+}
