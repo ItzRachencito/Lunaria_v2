@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:9090/api/v1.0";
+import { API_URLS } from "../api/config";
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -13,7 +12,7 @@ const getAuthHeaders = () => {
 
 export const addToFavorites = async (itemId) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/favorites/${itemId}`, {}, getAuthHeaders());
+        const response = await axios.post(`${API_URLS.favorites}/${itemId}`, {}, getAuthHeaders());
         return response.data;
     } catch (error) {
         console.log('FavoriteService addToFavorites error:', error);
@@ -25,7 +24,7 @@ export const addToFavorites = async (itemId) => {
 
 export const removeFromFavorites = async (itemId) => {
     try {
-        await axios.delete(`${API_BASE_URL}/favorites/${itemId}`, getAuthHeaders());
+        await axios.delete(`${API_URLS.favorites}/${itemId}`, getAuthHeaders());
     } catch (error) {
         throw error.response?.data || error.message;
     }
@@ -33,7 +32,7 @@ export const removeFromFavorites = async (itemId) => {
 
 export const getUserFavorites = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/favorites`, getAuthHeaders());
+        const response = await axios.get(API_URLS.favorites, getAuthHeaders());
         return response.data;
     } catch (error) {
         throw error.response?.data || error.message;
@@ -42,7 +41,7 @@ export const getUserFavorites = async () => {
 
 export const checkFavoriteStatus = async (itemId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/favorites/${itemId}/status`, getAuthHeaders());
+        const response = await axios.get(`${API_URLS.favorites}/${itemId}/status`, getAuthHeaders());
         return response.data.isFavorite;
     } catch (error) {
         throw error.response?.data || error.message;
