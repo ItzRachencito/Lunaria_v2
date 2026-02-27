@@ -59,14 +59,12 @@ public class SecurityConfig {
 
     private UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-            "http://localhost:5173",
-            "http://192.168.20.21:9090",
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:*",
+            "http://192.168.*.*:*",
             "https://lunariav2-production.up.railway.app",
             "http://lunariav2-production.up.railway.app",
-            "https://lunaria-v2-olive.vercel.app",
-            "https://lunaria-v2.vercel.app",
-            "https://lunariav2.vercel.app"
+            "https://*.vercel.app"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
