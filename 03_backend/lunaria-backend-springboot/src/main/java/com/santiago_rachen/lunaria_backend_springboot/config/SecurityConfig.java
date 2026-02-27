@@ -64,6 +64,7 @@ public class SecurityConfig {
             "http://192.168.20.21:9090",
             "https://lunariav2-production.up.railway.app",
             "http://lunariav2-production.up.railway.app",
+            "https://lunaria-v2-olive.vercel.app",
             "https://lunaria-v2.vercel.app",
             "https://lunariav2.vercel.app"
         ));
