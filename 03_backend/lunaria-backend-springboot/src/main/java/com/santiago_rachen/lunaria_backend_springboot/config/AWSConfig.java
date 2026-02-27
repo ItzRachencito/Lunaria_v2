@@ -10,7 +10,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
-@ConditionalOnExpression = "'${aws.access.key:}' != ''"
+@ConditionalOnExpression("'${aws.access.key:}' != ''")
 public class AWSConfig {
 
     @Value("${aws.access.key}")
