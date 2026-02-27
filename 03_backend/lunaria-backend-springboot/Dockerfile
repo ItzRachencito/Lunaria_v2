@@ -1,9 +1,9 @@
-# Build stage
-FROM eclipse-temurin:17-jdk-alpine AS build
+# Build stage - using official Eclipse Temurin (Debian-based, more stable)
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
 # Install Maven
-RUN apk add --no-cache maven
+RUN apt-get update && apt-get install -y maven
 
 # Copy pom.xml first for dependency caching
 COPY pom.xml .
@@ -18,7 +18,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Copy the built JAR file
