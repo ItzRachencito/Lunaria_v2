@@ -64,6 +64,8 @@ public class SecurityConfig {
             "http://192.168.*.*:*",
             "https://lunariav2-production.up.railway.app",
             "http://lunariav2-production.up.railway.app",
+            "https://lunaria.up.railway.app",
+            "http://lunaria.up.railway.app",
             "https://*.vercel.app"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
