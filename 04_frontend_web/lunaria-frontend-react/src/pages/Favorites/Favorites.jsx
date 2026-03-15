@@ -51,6 +51,9 @@ const Favorites = () => {
         }
     };
 
+    // Check if item is already in favorites
+    const isItemFavorite = selectedItem ? favorites.some(fav => fav.itemId === selectedItem.itemId) : false;
+
     return (
         <div className="favorites-container">
             <div className="container mt-4">
@@ -201,10 +204,17 @@ const Favorites = () => {
                                         Agregar al carrito
                                     </button>
                                 ) : (
-                                    <button type="button" className="btn btn-warning" onClick={handleAddToFavoritesFromModal}>
-                                        <i className="bi bi-heart me-2"></i>
-                                        Agregar a favoritos
-                                    </button>
+                                    isItemFavorite ? (
+                                        <button type="button" className="btn btn-danger" onClick={() => { handleRemoveFavorite(selectedItem.itemId); closeItemModal(); }}>
+                                            <i className="bi bi-heart-fill me-2"></i>
+                                            Remover de favoritos
+                                        </button>
+                                    ) : (
+                                        <button type="button" className="btn btn-warning" onClick={handleAddToFavoritesFromModal}>
+                                            <i className="bi bi-heart me-2"></i>
+                                            Agregar a favoritos
+                                        </button>
+                                    )
                                 )}
                                 <button type="button" className="btn btn-secondary" onClick={closeItemModal}>
                                     Cerrar
