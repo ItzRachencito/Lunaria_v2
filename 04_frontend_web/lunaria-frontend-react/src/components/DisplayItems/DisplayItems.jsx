@@ -95,6 +95,13 @@ const DisplayItems = ({selectedCategory}) => {
 
                                         <div className="mb-3">
                                             <h4 className="text-success">${selectedItem.price}</h4>
+                                            {selectedItem.installationPrice && (
+                                                <div className="mt-2">
+                                                    <span className="badge bg-info text-dark">
+                                                        Con Instalación: ${selectedItem.installationPrice}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="mb-3">

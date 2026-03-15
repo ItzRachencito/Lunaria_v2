@@ -34,6 +34,10 @@ public class ItemEntity {
 
     private BigDecimal price;
 
+    // Nuevos campos de precios
+    private BigDecimal purchasePrice; // Precio de compra al proveedor (solo admin)
+    private BigDecimal installationPrice; // Precio con instalación (mano de obra)
+
     private String description;
 
     @CreationTimestamp

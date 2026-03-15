@@ -15,6 +15,8 @@ public class ItemRequest {
 
     private String name;
     private BigDecimal price;
+    private BigDecimal purchasePrice;
+    private BigDecimal installationPrice;
     private String categoryId;
     private String brandId;
     private String description;

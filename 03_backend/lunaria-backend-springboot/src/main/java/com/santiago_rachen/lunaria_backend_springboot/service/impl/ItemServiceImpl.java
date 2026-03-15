@@ -70,10 +70,10 @@ public class ItemServiceImpl implements ItemService {
 
         newItem.setImgUrl(imgUrl);
         newItem = itemRepository.save(newItem);
-        return convertToResponse(newItem);
+        return convertToResponse(newItem, true); // Admin is adding the item
     }
 
-    private ItemResponse convertToResponse(ItemEntity newItem) {
+    private ItemResponse convertToResponse(ItemEntity newItem, boolean isAdmin) {
         // Check if item has any sales - if so, it cannot be deleted
         long salesCount = saleItemEntityRepository.countByItemId(newItem.getItemId());
         boolean canDelete = salesCount == 0;
@@ -84,6 +84,8 @@ public class ItemServiceImpl implements ItemService {
                 .name(newItem.getName())
                 .description(newItem.getDescription())
                 .price(newItem.getPrice())
+                .purchasePrice(isAdmin ? newItem.getPurchasePrice() : null) // Only show to admin
+                .installationPrice(newItem.getInstallationPrice())
                 .imgUrl(newItem.getImgUrl())
                 .categoryName(newItem.getCategory().getName())
                 .categoryId(newItem.getCategory().getCategoryId())
@@ -103,15 +105,17 @@ public class ItemServiceImpl implements ItemService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
+                .purchasePrice(request.getPurchasePrice())
+                .installationPrice(request.getInstallationPrice())
                 .stockQuantity(request.getStockQuantity() != null ? request.getStockQuantity() : 0)
                 .build();
     }
 
     @Override
-    public List<ItemResponse> fetchItems() {
+    public List<ItemResponse> fetchItems(boolean isAdmin) {
         return itemRepository.findAll()
                 .stream()
-                .map(itemEntity -> convertToResponse(itemEntity))
+                .map(itemEntity -> convertToResponse(itemEntity, isAdmin))
                 .collect(Collectors.toList());
     }
 
@@ -126,6 +130,12 @@ public class ItemServiceImpl implements ItemService {
         }
         if (request.getPrice() != null) {
             existingItem.setPrice(request.getPrice());
+        }
+        if (request.getPurchasePrice() != null) {
+            existingItem.setPurchasePrice(request.getPurchasePrice());
+        }
+        if (request.getInstallationPrice() != null) {
+            existingItem.setInstallationPrice(request.getInstallationPrice());
         }
         if (request.getDescription() != null) {
             existingItem.setDescription(request.getDescription());
@@ -153,7 +163,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         existingItem = itemRepository.save(existingItem);
-        return convertToResponse(existingItem);
+        return convertToResponse(existingItem, true); // Admin is updating the item
     }
 
     @Override

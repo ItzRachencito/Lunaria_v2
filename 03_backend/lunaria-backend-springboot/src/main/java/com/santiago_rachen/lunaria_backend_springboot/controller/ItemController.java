@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -53,8 +55,11 @@ public class ItemController {
         @ApiResponse(responseCode = "200", description = "List of items retrieved successfully")
     })
     @GetMapping("/items")
-    public List<ItemResponse> readItems() {
-        return itemService.fetchItems();
+    public List<ItemResponse> readItems(Authentication authentication) {
+        // Check if user is admin to show purchase price
+        boolean isAdmin = authentication != null && 
+                authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        return itemService.fetchItems(isAdmin);
     }
 
     @Operation(summary = "Update an item", description = "Updates an existing item by ID. Requires admin authentication.")

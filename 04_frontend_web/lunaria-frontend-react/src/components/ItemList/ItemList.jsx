@@ -18,6 +18,8 @@ const ItemList = () => {
         categoryId: "",
         brandId: "",
         price: "",
+        purchasePrice: "",
+        installationPrice: "",
         description: ""
     });
 
@@ -59,6 +61,8 @@ const ItemList = () => {
             categoryId: item.categoryId,
             brandId: item.brandId || "",
             price: item.price,
+            purchasePrice: item.purchasePrice || "",
+            installationPrice: item.installationPrice || "",
             description: item.description
         });
         setShowEditModal(true);
@@ -149,6 +153,16 @@ const ItemList = () => {
                                     <span className="mb-0 text-block badge rounded-pill text-bg-warning">
                                         $ {item.price}
                                     </span>
+                                    {item.installationPrice && (
+                                        <span className="mb-0 text-block badge rounded-pill text-bg-info ms-1">
+                                            Instalación: ${item.installationPrice}
+                                        </span>
+                                    )}
+                                    {item.purchasePrice && (
+                                        <span className="mb-0 text-block badge rounded-pill text-bg-secondary ms-1" title="Precio de compra al proveedor">
+                                            Compra: ${item.purchasePrice}
+                                        </span>
+                                    )}
                                     <p className="mb-0 text-white">
                                         Stock: {item.stockQuantity} - {item.stockStatus === 'IN_STOCK' ? 'En Stock' : item.stockStatus === 'LOW_STOCK' ? 'Stock Bajo' : 'Sin Stock'}
                                     </p>
@@ -240,7 +254,7 @@ const ItemList = () => {
                                         />
                                     </div>
                                     <div className="col-md-6 mb-3">
-                                        <label htmlFor="editPrice" className="form-label">Price</label>
+                                        <label htmlFor="editPrice" className="form-label">Precio</label>
                                         <input
                                             type="number"
                                             className="form-control"
@@ -250,7 +264,32 @@ const ItemList = () => {
                                             onChange={handleEditChange}
                                             step="0.01"
                                             min="0"
-                                            required
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label htmlFor="editPurchasePrice" className="form-label">Precio de Compra (Proveedor)</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            id="editPurchasePrice"
+                                            name="purchasePrice"
+                                            value={editData.purchasePrice}
+                                            onChange={handleEditChange}
+                                            step="0.01"
+                                            min="0"
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label htmlFor="editInstallationPrice" className="form-label">Precio con Instalación</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            id="editInstallationPrice"
+                                            name="installationPrice"
+                                            value={editData.installationPrice}
+                                            onChange={handleEditChange}
+                                            step="0.01"
+                                            min="0"
                                         />
                                     </div>
                                 </div>

@@ -13,6 +13,8 @@ const ItemForm = () => {
         categoryId: "",
         brandId: "",
         price: "",
+        purchasePrice: "",
+        installationPrice: "",
         description: "",
         stockQuantity: 0,
     });
@@ -46,6 +48,8 @@ const ItemForm = () => {
                     name: "",
                     description: "",
                     price: "",
+                    purchasePrice: "",
+                    installationPrice: "",
                     categoryId: "",
                     brandId: "",
                     stockQuantity: 0,
@@ -112,6 +116,14 @@ const ItemForm = () => {
                                 <div className="mb-3">
                                     <label htmlFor="price" className="form-label">Precio</label>
                                     <input type="number" name="price" id="price" className="form-control" placeholder="$ 000.00" onChange={onChangeHandler} value={data.price} required/>
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="purchasePrice" className="form-label">Precio de Compra (Proveedor) - Solo Admin</label>
+                                    <input type="number" name="purchasePrice" id="purchasePrice" className="form-control" placeholder="$ 000.00" onChange={onChangeHandler} value={data.purchasePrice}/>
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="installationPrice" className="form-label">Precio con Instalación (Mano de Obra)</label>
+                                    <input type="number" name="installationPrice" id="installationPrice" className="form-control" placeholder="$ 000.00" onChange={onChangeHandler} value={data.installationPrice}/>
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="stockQuantity" className="form-label">Cantidad de Stock</label>

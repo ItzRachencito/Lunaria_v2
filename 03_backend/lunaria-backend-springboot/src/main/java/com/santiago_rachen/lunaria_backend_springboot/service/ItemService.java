@@ -11,7 +11,7 @@ public interface ItemService {
 
     ItemResponse add(ItemRequest request, MultipartFile file) throws IOException;
 
-    List<ItemResponse> fetchItems();
+    List<ItemResponse> fetchItems(boolean isAdmin);
 
     ItemResponse updateItem(String itemId, ItemRequest request);
 
