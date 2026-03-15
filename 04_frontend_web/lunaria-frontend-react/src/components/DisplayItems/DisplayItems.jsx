@@ -5,7 +5,7 @@ import Item from "../Item/Item.jsx";
 import SearchBox from "../SearchBox/SearchBox.jsx";
 
 const DisplayItems = ({selectedCategory}) => {
-    const {itemsData, addToCart, auth, addToFavorites, removeFromFavorites, checkFavoriteStatus} = useContext(AppContext);
+    const {itemsData, addToCart, auth, addToFavorites, removeFromFavorites, checkFavoriteStatus, favoriteStatuses, favorites} = useContext(AppContext);
     const [searchText, setSearchText] = useState("");
     const [showItemModal, setShowItemModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -13,8 +13,8 @@ const DisplayItems = ({selectedCategory}) => {
     // Check if user is admin
     const isAdmin = auth.role === 'ROLE_ADMIN';
     
-    // Check if item is already in favorites
-    const isItemFavorite = selectedItem ? favoriteStatuses.get(selectedItem.itemId) : false;
+    // Check if item is already in favorites (using favorites array like in Favorites page)
+    const isItemFavorite = selectedItem ? favorites.some(fav => fav.itemId === selectedItem.itemId) : false;
 
     const filteredItems = itemsData.filter(item => {
         if(!selectedCategory) return true;
@@ -90,7 +90,7 @@ const DisplayItems = ({selectedCategory}) => {
 
             {/* Item Details Modal */}
             {showItemModal && selectedItem && (
-                <div className="modal show d-block" style={{backgroundColor: 'rgba(0,0,0,0.8)'}}>
+                <div className="modal show d-block" style={{backgroundColor: 'rgba(0,0,0,0.7)'}}>
                     <div className="modal-dialog modal-lg">
                         <div className="modal-content bg-dark text-light">
                             <div className="modal-header">
