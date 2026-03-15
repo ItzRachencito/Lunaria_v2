@@ -5,13 +5,14 @@ body, html {
 }
 
 .dashboard-wrapper {
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
 .dashboard-container {
     padding: 20px;
+    padding-bottom: 80px; /* More padding at bottom for scrolling */
     background-color: #212529;
     min-height: 100vh;
     color: #e9ecef;
@@ -219,5 +220,29 @@ body, html {
 
     .user-actions {
         grid-template-columns: 1fr;
+    }
+
+    /* Mobile table improvements */
+    .orders-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .orders-table {
+        font-size: 0.85rem;
+    }
+
+    .orders-table th, 
+    .orders-table td {
+        padding: 8px 10px;
+        white-space: nowrap;
+    }
+
+    .recent-sales-card {
+        padding: 15px;
+    }
+
+    .stat-content p {
+        font-size: 1.5rem;
     }
 }
