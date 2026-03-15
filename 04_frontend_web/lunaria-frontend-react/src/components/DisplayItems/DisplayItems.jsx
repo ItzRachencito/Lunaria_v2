@@ -98,7 +98,10 @@ const DisplayItems = ({selectedCategory}) => {
 
                                         {/* Sección de Precios */}
                                         <div className="p-3 bg-dark rounded border border-warning mb-3">
-                                            <h5 className="text-light mb-3">Precios:</h5>
+                                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                                <h5 className="text-light mb-0">Precios:</h5>
+                                                <small className="text-muted">ID: {selectedItem.itemId}</small>
+                                            </div>
                                             
                                             {/* Precio de venta - siempre visible */}
                                             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -152,11 +155,6 @@ const DisplayItems = ({selectedCategory}) => {
                                                 <p className="text-light">{selectedItem.description}</p>
                                             </div>
                                         )}
-
-                                        <div className="mb-3">
-                                            <strong>ID del Producto:</strong>
-                                            <p className="text-muted small">{selectedItem.itemId}</p>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
