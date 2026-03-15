@@ -5,13 +5,16 @@ import Item from "../Item/Item.jsx";
 import SearchBox from "../SearchBox/SearchBox.jsx";
 
 const DisplayItems = ({selectedCategory}) => {
-    const {itemsData, addToCart, auth, addToFavorites, checkFavoriteStatus} = useContext(AppContext);
+    const {itemsData, addToCart, auth, addToFavorites, removeFromFavorites, checkFavoriteStatus} = useContext(AppContext);
     const [searchText, setSearchText] = useState("");
     const [showItemModal, setShowItemModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
 
     // Check if user is admin
     const isAdmin = auth.role === 'ROLE_ADMIN';
+    
+    // Check if item is already in favorites
+    const isItemFavorite = selectedItem ? favoriteStatuses.get(selectedItem.itemId) : false;
 
     const filteredItems = itemsData.filter(item => {
         if(!selectedCategory) return true;
@@ -48,6 +51,17 @@ const DisplayItems = ({selectedCategory}) => {
             } catch (error) {
                 console.error("Error adding to favorites from modal:", error);
                 // Don't close modal on error so user can try again
+            }
+        }
+    }
+
+    const handleRemoveFromFavoritesFromModal = async () => {
+        if (selectedItem) {
+            try {
+                await removeFromFavorites(selectedItem.itemId);
+                closeItemModal();
+            } catch (error) {
+                console.error("Error removing from favorites from modal:", error);
             }
         }
     }
@@ -165,10 +179,17 @@ const DisplayItems = ({selectedCategory}) => {
                                         Agregar al carrito
                                     </button>
                                 ) : (
-                                    <button type="button" className="btn btn-warning" onClick={handleAddToFavoritesFromModal}>
-                                        <i className="bi bi-heart me-2"></i>
-                                        Agregar a favoritos
-                                    </button>
+                                    isItemFavorite ? (
+                                        <button type="button" className="btn btn-danger" onClick={handleRemoveFromFavoritesFromModal}>
+                                            <i className="bi bi-heart-fill me-2"></i>
+                                            Remover de favoritos
+                                        </button>
+                                    ) : (
+                                        <button type="button" className="btn btn-warning" onClick={handleAddToFavoritesFromModal}>
+                                            <i className="bi bi-heart me-2"></i>
+                                            Agregar a favoritos
+                                        </button>
+                                    )
                                 )}
                             </div>
                         </div>
