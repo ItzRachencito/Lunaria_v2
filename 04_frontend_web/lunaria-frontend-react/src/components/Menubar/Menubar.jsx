@@ -80,19 +80,6 @@ const Menubar = () => {
                         </a>
                         <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li>
-                                <a href="#!" className="dropdown-item">
-                                    Ajustes
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#!" className="dropdown-item">
-                                    Movimientos recientes
-                                </a>
-                            </li>
-                            <li>
-                                <hr className="dropdown-divider" />
-                            </li>
-                            <li>
                                 <a href="#!" className="dropdown-item" onClick={logout}>
                                     Cerrar sesión
                                 </a>
