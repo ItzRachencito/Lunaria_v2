@@ -2,6 +2,7 @@ import './Dashboard.css';
 import {useEffect, useState, useContext} from "react";
 import {fetchDashboardData} from "../../Service/Dashboard.js";
 import {AppContext} from "../../context/AppContext.jsx";
+import {Link} from "react-router-dom";
 import toast from "react-hot-toast";
 
 const Dashboard = () => {
@@ -154,10 +155,10 @@ const Dashboard = () => {
                                 Descubre Productos
                             </h4>
                             <p>Explora nuestro catálogo completo y encuentra lo que necesitas.</p>
-                            <a href="/explore" className="btn btn-primary">
+                            <Link to="/explore" className="btn btn-primary">
                                 <i className="bi bi-arrow-right me-2"></i>
                                 Ir al Catálogo
-                            </a>
+                            </Link>
                         </div>
 
                         <div className="action-card">
@@ -166,10 +167,10 @@ const Dashboard = () => {
                                 Mis Favoritos
                             </h4>
                             <p>Revisa los productos que has guardado como favoritos.</p>
-                            <a href="/favorites" className="btn btn-warning">
+                            <Link to="/favorites" className="btn btn-warning">
                                 <i className="bi bi-arrow-right me-2"></i>
                                 Ver Favoritos
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>
