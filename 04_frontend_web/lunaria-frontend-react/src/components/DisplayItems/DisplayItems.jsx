@@ -10,6 +10,9 @@ const DisplayItems = ({selectedCategory}) => {
     const [showItemModal, setShowItemModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
 
+    // Check if user is admin
+    const isAdmin = auth.role === 'ROLE_ADMIN';
+
     const filteredItems = itemsData.filter(item => {
         if(!selectedCategory) return true;
         return item.categoryId === selectedCategory;
@@ -93,13 +96,29 @@ const DisplayItems = ({selectedCategory}) => {
                                     <div className="col-md-6">
                                         <h3 className="text-warning mb-3">{selectedItem.name}</h3>
 
-                                        <div className="mb-3">
-                                            <h4 className="text-success">${selectedItem.price}</h4>
+                                        {/* Sección de Precios */}
+                                        <div className="p-3 bg-dark rounded border border-warning mb-3">
+                                            <h5 className="text-light mb-3">Precios:</h5>
+                                            
+                                            {/* Precio de venta - siempre visible */}
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <span className="text-light">Precio de venta:</span>
+                                                <span className="text-success fw-bold fs-5">${selectedItem.price}</span>
+                                            </div>
+                                            
+                                            {/* Precio con instalación */}
                                             {selectedItem.installationPrice && (
-                                                <div className="mt-2">
-                                                    <span className="badge bg-info text-dark">
-                                                        Con Instalación: ${selectedItem.installationPrice}
-                                                    </span>
+                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                    <span className="text-light">Precio con instalación:</span>
+                                                    <span className="text-info fw-bold">${selectedItem.installationPrice}</span>
+                                                </div>
+                                            )}
+                                            
+                                            {/* Precio de compra - solo visible para admin */}
+                                            {isAdmin && selectedItem.purchasePrice && (
+                                                <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary">
+                                                    <span className="text-warning">Precio de compra:</span>
+                                                    <span className="text-warning fw-bold">${selectedItem.purchasePrice}</span>
                                                 </div>
                                             )}
                                         </div>
