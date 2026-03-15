@@ -1,5 +1,7 @@
 package com.santiago_rachen.lunaria_backend_springboot.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.santiago_rachen.lunaria_backend_springboot.config.AppConfig;
 import com.santiago_rachen.lunaria_backend_springboot.entity.CategoryEntity;
 import com.santiago_rachen.lunaria_backend_springboot.io.CategoryRequest;
@@ -9,17 +11,14 @@ import com.santiago_rachen.lunaria_backend_springboot.repository.ItemRepository;
 import com.santiago_rachen.lunaria_backend_springboot.service.CategoryService;
 import com.santiago_rachen.lunaria_backend_springboot.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,21 +27,26 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final FileUploadService fileUploadService;
     private final ItemRepository itemRepository;
+    private final Cloudinary cloudinary;
     private final AppConfig appConfig;
 
     public CategoryResponse add(CategoryRequest request, MultipartFile file) throws IOException {
         String imgUrl = null;
 
         if (file != null && !file.isEmpty()) {
-            //String imgUrl = fileUploadService.uploadFile(file);
-            String fileName = UUID.randomUUID().toString()+"."+StringUtils.getFilenameExtension(file.getOriginalFilename());
-            Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
-            Files.createDirectories(uploadPath);
-            Path targetLocation = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            imgUrl = appConfig.getServerUrl() + "/api/v1.0/uploads/"+fileName;
+            try {
+                // Upload to Cloudinary
+                Map uploadResult = cloudinary.uploader().upload(file.getBytes(), 
+                    ObjectUtils.asMap(
+                        "public_id", "categories/" + UUID.randomUUID().toString(),
+                        "folder", "lunaria",
+                        "resource_type", "image"
+                    ));
+                imgUrl = (String) uploadResult.get("secure_url");
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error uploading image: " + e.getMessage());
+            }
         } else {
             // Default image or placeholder
             imgUrl = "https://via.placeholder.com/300x300?text=No+Image";
@@ -86,17 +90,44 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(String categoryId) {
         CategoryEntity existingCategory = categoryRepository.findByCategoryId(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found: "+categoryId));
-        //fileUploadService.deleteFile(existingCategory.getImgUrl());
+        
+        // Delete from Cloudinary if it's not a placeholder
         String imgUrl = existingCategory.getImgUrl();
-        String fileName = imgUrl.substring(imgUrl.lastIndexOf("/")+1);
-        Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
-        Path filePath = uploadPath.resolve(fileName);
+        if (imgUrl != null && !imgUrl.contains("placeholder.com")) {
+            try {
+                // Extract public_id from Cloudinary URL
+                String publicId = extractPublicIdFromUrl(imgUrl);
+                if (publicId != null) {
+                    cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                }
+            } catch (Exception e) {
+                // Log error but continue with deletion
+                e.printStackTrace();
+            }
+        }
+        
+        categoryRepository.delete(existingCategory);
+    }
+    
+    private String extractPublicIdFromUrl(String url) {
+        // Extract public_id from Cloudinary URL
         try {
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
+            if (url.contains("cloudinary.com")) {
+                String[] parts = url.split("/upload/");
+                if (parts.length > 1) {
+                    String path = parts[1];
+                    path = path.replaceFirst("^v\\d+/", "");
+                    int lastDot = path.lastIndexOf(".");
+                    if (lastDot > 0) {
+                        path = path.substring(0, lastDot);
+                    }
+                    return path;
+                }
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        categoryRepository.delete(existingCategory);
+        return null;
     }
 
     private CategoryResponse convertToResponse(CategoryEntity newCategory) {

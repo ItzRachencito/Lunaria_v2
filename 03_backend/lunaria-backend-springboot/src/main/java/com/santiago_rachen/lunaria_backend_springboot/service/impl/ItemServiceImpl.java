@@ -1,5 +1,7 @@
 package com.santiago_rachen.lunaria_backend_springboot.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.santiago_rachen.lunaria_backend_springboot.config.AppConfig;
 import com.santiago_rachen.lunaria_backend_springboot.entity.BrandEntity;
 import com.santiago_rachen.lunaria_backend_springboot.entity.CategoryEntity;
@@ -15,16 +17,12 @@ import com.santiago_rachen.lunaria_backend_springboot.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,25 +30,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private final FileUploadService fileUploadService;
+    private final Cloudinary cloudinary;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final ItemRepository itemRepository;
     private final SaleItemEntityRepository saleItemEntityRepository;
-    private final AppConfig appConfig;
 
     @Override
     public ItemResponse add(ItemRequest request, MultipartFile file) throws IOException {
         String imgUrl = null;
 
         if (file != null && !file.isEmpty()) {
-            //String imgUrl = fileUploadService.uploadFile(file);
-            String fileName = UUID.randomUUID().toString()+"."+ StringUtils.getFilenameExtension(file.getOriginalFilename());
-            Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
-            Files.createDirectories(uploadPath);
-            Path targetLocation = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            imgUrl = appConfig.getServerUrl() + "/api/v1.0/uploads/"+fileName;
+            try {
+                // Upload to Cloudinary
+                Map uploadResult = cloudinary.uploader().upload(file.getBytes(), 
+                    ObjectUtils.asMap(
+                        "public_id", "items/" + UUID.randomUUID().toString(),
+                        "folder", "lunaria",
+                        "resource_type", "image"
+                    ));
+                imgUrl = (String) uploadResult.get("secure_url");
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error uploading image: " + e.getMessage());
+            }
         } else {
             // Default image or placeholder
             imgUrl = "https://via.placeholder.com/300x300?text=No+Image";
@@ -165,17 +167,45 @@ public class ItemServiceImpl implements ItemService {
             throw new RuntimeException("Cannot delete item: it has been sold " + salesCount + " time(s)");
         }
 
-        //boolean isFileDelete = fileUploadService.deleteFile(existingItem.getImgUrl());
+        // Delete from Cloudinary if it's not a placeholder
         String imgUrl = existingItem.getImgUrl();
-        String fileName = imgUrl.substring(imgUrl.lastIndexOf("/")+1);
-        Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
-        Path filePath = uploadPath.resolve(fileName);
-        try {
-            Files.deleteIfExists(filePath);
-            itemRepository.delete(existingItem);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to delete the image");
+        if (imgUrl != null && !imgUrl.contains("placeholder.com")) {
+            try {
+                // Extract public_id from Cloudinary URL
+                String publicId = extractPublicIdFromUrl(imgUrl);
+                if (publicId != null) {
+                    cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                }
+            } catch (Exception e) {
+                // Log error but continue with deletion
+                e.printStackTrace();
+            }
         }
+        
+        itemRepository.delete(existingItem);
+    }
+    
+    private String extractPublicIdFromUrl(String url) {
+        // Extract public_id from Cloudinary URL
+        // URL format: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<public_id>.<format>
+        try {
+            if (url.contains("cloudinary.com")) {
+                String[] parts = url.split("/upload/");
+                if (parts.length > 1) {
+                    String path = parts[1];
+                    // Remove version prefix if present (v1234567890)
+                    path = path.replaceFirst("^v\\d+/", "");
+                    // Remove file extension
+                    int lastDot = path.lastIndexOf(".");
+                    if (lastDot > 0) {
+                        path = path.substring(0, lastDot);
+                    }
+                    return path;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
