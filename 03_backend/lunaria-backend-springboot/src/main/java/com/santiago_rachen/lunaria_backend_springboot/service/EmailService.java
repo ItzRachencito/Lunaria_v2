@@ -14,14 +14,15 @@ public class EmailService {
     
     @Autowired
     public EmailService(
-            @Value("${BREVO_API_KEY:}") String brevoApiKey,
-            @Value("${BREVO_FROM_EMAIL:}") String fromEmail,
-            @Value("${BREVO_FROM_NAME:Lunaria}") String fromName,
-            @Value("${APP_FRONTEND_URL:}") String frontendUrl) {
-        this.brevoApiKey = System.getenv("BREVO_API_KEY") != null ? System.getenv("BREVO_API_KEY") : brevoApiKey;
-        this.fromEmail = System.getenv("BREVO_FROM_EMAIL") != null ? System.getenv("BREVO_FROM_EMAIL") : fromEmail;
-        this.fromName = System.getenv("BREVO_FROM_NAME") != null ? System.getenv("BREVO_FROM_NAME") : fromName;
-        this.frontendUrl = System.getenv("APP_FRONTEND_URL") != null ? System.getenv("APP_FRONTEND_URL") : frontendUrl;
+            @Value("${brevo.api.key:}") String brevoApiKey,
+            @Value("${brevo.from.email:}") String fromEmail,
+            @Value("${brevo.from.name:Lunaria}") String fromName,
+            @Value("${app.frontend.url:}") String frontendUrl) {
+        this.brevoApiKey = brevoApiKey;
+        // Fallback to default Brevo sender if not configured
+        this.fromEmail = (fromEmail != null && !fromEmail.isEmpty()) ? fromEmail : "contact@lunaria.app";
+        this.fromName = fromName;
+        this.frontendUrl = frontendUrl;
     }
     
     /**
@@ -56,6 +57,13 @@ public class EmailService {
             // Using Brevo's REST API directly with HTTP client
             String url = "https://api.brevo.com/v3/smtp/email";
             
+            // Debug logging
+            System.out.println("=== DEBUG BREVO ===");
+            System.out.println("API Key configured: " + (brevoApiKey != null && !brevoApiKey.isEmpty()));
+            System.out.println("From Email: " + fromEmail);
+            System.out.println("From Name: " + fromName);
+            System.out.println("===================");
+            
             // Create JSON payload
             String jsonPayload = String.format(
                 "{\"sender\":{\"name\":\"%s\",\"email\":\"%s\"},\"to\":[{\"email\":\"%s\"}],\"subject\":\"%s\",\"htmlContent\":\"%s\",\"textContent\":\"%s\"}",
@@ -84,7 +92,26 @@ public class EmailService {
             if (responseCode >= 200 && responseCode < 300) {
                 System.out.println("✅ Email enviado exitosamente a " + email);
             } else {
+                // Read error response
+                StringBuilder errorResponse = new StringBuilder();
+                try (java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(conn.getErrorStream(), java.nio.charset.StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        errorResponse.append(line);
+                    }
+                }
                 System.out.println("❌ Error al enviar email. Código: " + responseCode);
+                System.out.println("Respuesta de error: " + errorResponse.toString());
+                
+                // Fallback to console on error
+                System.out.println("===========================================");
+                System.out.println("📧 EMAIL DE RECUPERACIÓN (FALLBACK)");
+                System.out.println("===========================================");
+                System.out.println("Para: " + email);
+                System.out.println("Asunto: " + subject);
+                System.out.println("Código OTP: " + otpCode);
+                System.out.println("===========================================");
             }
             
         } catch (Exception e) {
