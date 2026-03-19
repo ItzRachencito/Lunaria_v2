@@ -9,13 +9,13 @@ public class EmailService {
     @Value("${brevo.api.key:}")
     private String brevoApiKey;
     
-    @Value("${brevo.from.email:noreply@lunaria.com}")
+    @Value("${brevo.from.email:}")
     private String fromEmail;
     
     @Value("${brevo.from.name:Lunaria}")
     private String fromName;
     
-    @Value("${app.frontend.url:https://lunaria-bikes.vercel.app}")
+    @Value("${app.frontend.url:}")
     private String frontendUrl;
     
     /**
@@ -29,7 +29,7 @@ public class EmailService {
         String textContent = buildPasswordResetText(email, otpCode);
         
         if (brevoApiKey != null && !brevoApiKey.isEmpty()) {
-            sendEmailWithBrevo(email, subject, htmlContent, textContent);
+            sendEmailWithBrevo(email, subject, htmlContent, textContent, otpCode);
         } else {
             // Fallback to console for development
             System.out.println("===========================================");
@@ -45,7 +45,7 @@ public class EmailService {
     /**
      * Send email using Brevo API v3
      */
-    private void sendEmailWithBrevo(String email, String subject, String htmlContent, String textContent) {
+    private void sendEmailWithBrevo(String email, String subject, String htmlContent, String textContent, String otpCode) {
         try {
             // Using Brevo's REST API directly with HTTP client
             String url = "https://api.brevo.com/v3/smtp/email";
@@ -89,7 +89,7 @@ public class EmailService {
     }
     
     private String buildPasswordResetHtml(String email, String otpCode) {
-        String resetUrl = frontendUrl + "/reset-password?email=" + email;
+        String resetUrl = (frontendUrl != null && !frontendUrl.isEmpty() ? frontendUrl : "http://localhost:5173") + "/reset-password?email=" + email;
         
         return "<!DOCTYPE html>" +
             "<html>" +
