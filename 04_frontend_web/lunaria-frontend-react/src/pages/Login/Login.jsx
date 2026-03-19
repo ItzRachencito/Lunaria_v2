@@ -73,6 +73,14 @@ const Login = () => {
                     </div>
                     <div className="text-center mt-3">
                         <p className="mb-0">
+                            ¿Olvidaste tu contraseña?{" "}
+                            <a href="#" onClick={() => navigate("/forgot-password")} className="text-decoration-none">
+                                Recupérala aquí
+                            </a>
+                        </p>
+                    </div>
+                    <div className="text-center mt-2">
+                        <p className="mb-0">
                             ¿No tienes cuenta?{" "}
                             <a href="#" onClick={() => navigate("/register")} className="text-decoration-none">
                                 Regístrate aquí

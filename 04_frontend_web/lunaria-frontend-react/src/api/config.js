@@ -22,7 +22,12 @@ export const API_URLS = {
         dashboard: `${API_BASE_URL}/stock/dashboard`
     },
     favorites: `${API_BASE_URL}/favorites`,
-    dashboard: `${API_BASE_URL}/dashboard`
+    dashboard: `${API_BASE_URL}/dashboard`,
+    passwordReset: {
+        request: `${API_BASE_URL}/password-reset/request`,
+        reset: `${API_BASE_URL}/password-reset/reset`,
+        resend: `${API_BASE_URL}/password-reset/resend`
+    }
 };
 
 export default API_BASE_URL;

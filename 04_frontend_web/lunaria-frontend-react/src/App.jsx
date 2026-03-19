@@ -15,6 +15,8 @@ import SaleHistory from "./pages/SaleHistory/SaleHistory.jsx";
 import {useContext} from "react";
 import {AppContext} from "./context/AppContext.jsx";
 import NotFound from "./pages/NotFound/NotFound.jsx";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword/ResetPassword.jsx";
 
 const App = () => {
     const location = useLocation();
@@ -41,7 +43,7 @@ const App = () => {
 
     return (
         <div>
-            {location.pathname !== "/login" && location.pathname !== "/register" && location.pathname !== '/' && <Menubar />}
+            {location.pathname !== "/login" && location.pathname !== "/register" && location.pathname !== '/' && location.pathname !== "/forgot-password" && location.pathname !== "/reset-password" && <Menubar />}
             <Toaster />
             <Routes>
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -56,6 +58,8 @@ const App = () => {
 
                 <Route path="/login" element={<LoginRoute element={<Login />} />} />
                 <Route path="/register" element={<LoginRoute element={<Register />} />} />
+                <Route path="/forgot-password" element={<LoginRoute element={<ForgotPassword />} />} />
+                <Route path="/reset-password" element={<LoginRoute element={<ResetPassword />} />} />
                 <Route path="/ventas" element={<ProtectedRoute element={<SaleHistory />} allowedRoles={['ROLE_ADMIN']} />} />
                 <Route path="/" element={<Login />} />
                 <Route path="*" element={<NotFound />} />
