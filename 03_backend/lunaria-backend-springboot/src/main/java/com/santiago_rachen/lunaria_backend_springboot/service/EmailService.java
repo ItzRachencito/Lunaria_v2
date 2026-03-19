@@ -14,13 +14,12 @@ public class EmailService {
     
     @Autowired
     public EmailService(
-            @Value("${brevo.api.key:}") String brevoApiKey,
-            @Value("${brevo.from.email:}") String fromEmail,
-            @Value("${brevo.from.name:Lunaria}") String fromName,
-            @Value("${app.frontend.url:}") String frontendUrl) {
+            @Value("${BREVO_API_KEY:}") String brevoApiKey,
+            @Value("${BREVO_FROM_EMAIL:contact@lunaria.app}") String fromEmail,
+            @Value("${BREVO_FROM_NAME:Lunaria}") String fromName,
+            @Value("${APP_FRONTEND_URL:}") String frontendUrl) {
         this.brevoApiKey = brevoApiKey;
-        // Fallback to default Brevo sender if not configured
-        this.fromEmail = (fromEmail != null && !fromEmail.isEmpty()) ? fromEmail : "contact@lunaria.app";
+        this.fromEmail = fromEmail;
         this.fromName = fromName;
         this.frontendUrl = frontendUrl;
     }
