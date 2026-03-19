@@ -1,22 +1,28 @@
 package com.santiago_rachen.lunaria_backend_springboot.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
     
-    @Value("${brevo.api.key:}")
     private String brevoApiKey;
-    
-    @Value("${brevo.from.email:}")
     private String fromEmail;
-    
-    @Value("${brevo.from.name:Lunaria}")
     private String fromName;
-    
-    @Value("${app.frontend.url:}")
     private String frontendUrl;
+    
+    @Autowired
+    public EmailService(
+            @Value("${BREVO_API_KEY:}") String brevoApiKey,
+            @Value("${BREVO_FROM_EMAIL:}") String fromEmail,
+            @Value("${BREVO_FROM_NAME:Lunaria}") String fromName,
+            @Value("${APP_FRONTEND_URL:}") String frontendUrl) {
+        this.brevoApiKey = System.getenv("BREVO_API_KEY") != null ? System.getenv("BREVO_API_KEY") : brevoApiKey;
+        this.fromEmail = System.getenv("BREVO_FROM_EMAIL") != null ? System.getenv("BREVO_FROM_EMAIL") : fromEmail;
+        this.fromName = System.getenv("BREVO_FROM_NAME") != null ? System.getenv("BREVO_FROM_NAME") : fromName;
+        this.frontendUrl = System.getenv("APP_FRONTEND_URL") != null ? System.getenv("APP_FRONTEND_URL") : frontendUrl;
+    }
     
     /**
      * Send password reset OTP email using Brevo API
