@@ -200,6 +200,27 @@ CREATE TABLE `tbl_user_favorites` (
   CONSTRAINT `FK_favorite_item` FOREIGN KEY (`item_id`) REFERENCES `tbl_items` (`id`),
   CONSTRAINT `FK_favorite_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+ALTER TABLE tbl_items 
+ADD COLUMN purchase_price DECIMAL(38,2) DEFAULT NULL COMMENT 'Precio de compra al proveedor - solo visible para admin',
+ADD COLUMN installation_price DECIMAL(38,2) DEFAULT NULL COMMENT 'Precio con instalación (mano de obra)';
+
+
+CREATE TABLE IF NOT EXISTS password_reset_otp (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    used_at TIMESTAMP NULL,
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(500),
+    INDEX idx_email (email),
+    INDEX idx_otp_code (otp_code),
+    INDEX idx_expires_at (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
