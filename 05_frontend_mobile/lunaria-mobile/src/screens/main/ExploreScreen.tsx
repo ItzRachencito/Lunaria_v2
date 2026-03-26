@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,16 @@ import {
   RefreshControl,
   StyleSheet,
   Alert,
+  Modal,
+  Image,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useGetItemsQuery, useGetCategoriesQuery } from '../../api/itemsApi';
-import { useAddToFavoritesMutation, useRemoveFromFavoritesMutation } from '../../api/favoritesApi';
-import { useCheckFavoriteStatusQuery } from '../../api/favoritesApi';
+import { useGetUserFavoritesQuery, useAddToFavoritesMutation, useRemoveFromFavoritesMutation } from '../../api/favoritesApi';
 import { Item, Category } from '../../types/api';
+import { API_CONFIG } from '../../constants/config';
 
 import ItemCard from '../../components/ItemCard';
 import CategoryFilter from '../../components/CategoryFilter';
@@ -24,21 +26,41 @@ const ExploreScreen = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [showItemModal, setShowItemModal] = useState(false);
 
   // API calls
   const { data: items = [], isLoading: itemsLoading, refetch: refetchItems } = useGetItemsQuery();
   const { data: categories = [], isLoading: categoriesLoading } = useGetCategoriesQuery();
+  const { data: favorites = [], refetch: refetchFavorites } = useGetUserFavoritesQuery();
 
   const [addToFavorites] = useAddToFavoritesMutation();
   const [removeFromFavorites] = useRemoveFromFavoritesMutation();
+
+  // Use ref for favorite IDs to avoid unnecessary re-renders
+  const favoriteIdsRef = useRef<Set<string>>(new Set());
+
+  // Only update the ref when favorites change, don't trigger re-render
+  if (favorites && favorites.length > 0) {
+    const ids = new Set(favorites.map(fav => fav.itemId));
+    favoriteIdsRef.current = ids;
+  } else {
+    favoriteIdsRef.current = new Set();
+  }
+
+  // Helper function to check if item is favorite
+  const isItemFavorite = (itemId: string) => favoriteIdsRef.current.has(itemId);
 
   // Filter items based on category and search
   const filteredItems = useMemo(() => {
     let filtered = items;
 
-    // Filter by category
+    // Filter by category - convert to string for comparison
     if (selectedCategoryId) {
-      filtered = filtered.filter(item => item.category?.categoryId === selectedCategoryId);
+      filtered = filtered.filter(item => 
+        String(item.category?.categoryId) === selectedCategoryId || 
+        String(item.categoryId) === selectedCategoryId
+      );
     }
 
     // Filter by search query
@@ -61,14 +83,24 @@ const ExploreScreen = () => {
   };
 
   const handleItemPress = (item: Item) => {
-    // TODO: Navigate to item detail screen
-    Alert.alert('Producto', `Detalles de: ${item.name}`);
+    setSelectedItem(item);
+    setShowItemModal(true);
+  };
+
+  const closeModal = () => {
+    setShowItemModal(false);
+    setSelectedItem(null);
+  };
+
+  // Process image URL for mobile
+  const processImageUrl = (imgUrl: string | undefined) => {
+    if (!imgUrl) return null;
+    return imgUrl.replace('http://localhost:9090/api/v1.0', API_CONFIG.BASE_URL);
   };
 
   const handleFavoritePress = async (item: Item) => {
     try {
-      // Check if item is already favorite
-      const isFavorite = await checkIfFavorite(item.itemId);
+      const isFavorite = isItemFavorite(item.itemId);
 
       if (isFavorite) {
         await removeFromFavorites(item.itemId).unwrap();
@@ -77,14 +109,12 @@ const ExploreScreen = () => {
         await addToFavorites(item.itemId).unwrap();
         Alert.alert('Éxito', 'Agregado a favoritos');
       }
+      // Refetch favorites to update the UI
+      await refetchFavorites();
     } catch (error) {
+      console.error('Error updating favorites:', error);
       Alert.alert('Error', 'No se pudo actualizar favoritos');
     }
-  };
-
-  const checkIfFavorite = async (itemId: string): Promise<boolean> => {
-    // This is a simplified check - in a real app you'd track this in state
-    return false; // TODO: Implement proper favorite status checking
   };
 
   const renderItem = ({ item }: { item: Item }) => (
@@ -92,6 +122,7 @@ const ExploreScreen = () => {
       item={item}
       onPress={() => handleItemPress(item)}
       onFavoritePress={() => handleFavoritePress(item)}
+      isFavorite={isItemFavorite(item.itemId)}
       showFavoriteButton={true}
     />
   );
@@ -106,9 +137,12 @@ const ExploreScreen = () => {
     </View>
   );
 
-  const renderHeader = () => (
-    <>
-      {/* Search Bar */}
+  // Search Bar and Category Filter are now rendered directly in the return statement
+  // to prevent re-render issues with TextInput
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Search Bar - Outside FlatList to prevent keyboard issues */}
       <View style={styles.searchContainer}>
         <MaterialIcons name="search" size={24} color="#666" style={styles.searchIcon} />
         <TextInput
@@ -125,7 +159,7 @@ const ExploreScreen = () => {
         ) : null}
       </View>
 
-      {/* Category Filter */}
+      {/* Category Filter - Outside FlatList */}
       {!categoriesLoading && categories.length > 0 && (
         <CategoryFilter
           categories={categories}
@@ -140,16 +174,11 @@ const ExploreScreen = () => {
           {filteredItems.length} producto{filteredItems.length !== 1 ? 's' : ''} encontrado{filteredItems.length !== 1 ? 's' : ''}
         </Text>
       </View>
-    </>
-  );
 
-  return (
-    <SafeAreaView style={styles.container}>
       <FlatList
         data={filteredItems}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmpty}
         numColumns={2}
         contentContainerStyle={styles.listContainer}
@@ -157,7 +186,55 @@ const ExploreScreen = () => {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       />
+
+      {/* Item Detail Modal */}
+      <Modal
+        visible={showItemModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+              <MaterialIcons name="close" size={24} color="#666" />
+            </TouchableOpacity>
+
+            {selectedItem && (
+              <>
+                {selectedItem.imgUrl && (
+                  <Image
+                    source={{ uri: processImageUrl(selectedItem.imgUrl) || undefined }}
+                    style={styles.modalImage}
+                  />
+                )}
+                <Text style={styles.modalTitle}>{selectedItem.name}</Text>
+                {selectedItem.description && (
+                  <Text style={styles.modalDescription}>
+                    {selectedItem.description}
+                  </Text>
+                )}
+                <View style={styles.priceContainer}>
+                  <Text style={styles.modalPrice}>
+                    ${selectedItem.price.toFixed(2)}
+                  </Text>
+                  {selectedItem.installationPrice && (
+                    <Text style={styles.modalInstallationPrice}>
+                      Con instalación: ${selectedItem.installationPrice.toFixed(2)}
+                    </Text>
+                  )}
+                </View>
+                <Text style={styles.modalStock}>
+                  Stock disponible: {selectedItem.stockQuantity}
+                </Text>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -219,6 +296,65 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     paddingHorizontal: 32,
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    width: '85%',
+    maxWidth: 400,
+    alignItems: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+    padding: 8,
+  },
+  modalImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalDescription: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  priceContainer: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  modalPrice: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#007bff',
+  },
+  modalInstallationPrice: {
+    fontSize: 16,
+    color: '#17a2b8',
+    marginTop: 4,
+  },
+  modalStock: {
+    fontSize: 14,
+    color: '#666',
   },
 });
 

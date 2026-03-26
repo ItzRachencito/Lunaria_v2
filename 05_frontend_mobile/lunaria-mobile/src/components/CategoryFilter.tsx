@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Category } from '../types/api';
+import { API_CONFIG } from '../constants/config';
 
 interface CategoryFilterProps {
   categories: Category[];
@@ -13,6 +15,12 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategoryId,
   onCategorySelect,
 }) => {
+  // Process image URL for mobile compatibility
+  const processImageUrl = (imgUrl: string | undefined) => {
+    if (!imgUrl) return null;
+    return imgUrl.replace('http://localhost:9090/api/v1.0', API_CONFIG.BASE_URL);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Categorías</Text>
@@ -21,6 +29,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
       >
+        {/* Botón "Todas" sin imagen */}
         <TouchableOpacity
           style={[
             styles.categoryButton,
@@ -38,25 +47,42 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
           </Text>
         </TouchableOpacity>
 
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.id}
-            style={[
-              styles.categoryButton,
-              selectedCategoryId === category.categoryId && styles.selectedButton,
-            ]}
-            onPress={() => onCategorySelect(category.categoryId)}
-          >
-            <Text
+        {categories.map((category) => {
+          const isSelected = selectedCategoryId === category.categoryId;
+          const processedImgUrl = processImageUrl(category.imgUrl);
+
+          return (
+            <TouchableOpacity
+              key={category.categoryId}
               style={[
-                styles.categoryText,
-                selectedCategoryId === category.categoryId && styles.selectedText,
+                styles.categoryItem,
+                isSelected && styles.selectedItem,
+                { backgroundColor: category.bgColor || '#6c757d' },
               ]}
+              onPress={() => onCategorySelect(category.categoryId)}
             >
-              {category.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              {processedImgUrl ? (
+                <Image
+                  source={{ uri: processedImgUrl }}
+                  style={styles.categoryImage}
+                />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <MaterialIcons name="category" size={24} color="#fff" />
+                </View>
+              )}
+              <Text
+                style={[
+                  styles.categoryName,
+                  isSelected && styles.selectedText,
+                ]}
+                numberOfLines={1}
+              >
+                {category.name}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -91,6 +117,40 @@ const styles = StyleSheet.create({
   selectedButton: {
     backgroundColor: '#007bff',
     borderColor: '#007bff',
+  },
+  categoryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+    minWidth: 120,
+    maxWidth: 200,
+  },
+  selectedItem: {
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  categoryImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginRight: 6,
+  },
+  imagePlaceholder: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginRight: 6,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryName: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '600',
   },
   categoryText: {
     fontSize: 14,

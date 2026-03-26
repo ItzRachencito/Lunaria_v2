@@ -10,12 +10,12 @@ import {
   Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useGetLatestSalesQuery } from '../../api/baseApi';
+import { useGetLatestSalesQuery } from '../../api/salesApi';
 import { Sale } from '../../types/api';
 
 const SaleHistoryScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: sales = [], isLoading, error } = useGetLatestSalesQuery();
+  const { data: sales = [], isLoading, error, refetch } = useGetLatestSalesQuery();
 
   // Filter sales based on search query
   const filteredSales = useMemo(() => {
@@ -129,7 +129,7 @@ const SaleHistoryScreen = () => {
         refreshing={isLoading}
         onRefresh={() => {
           // Trigger refetch
-          window.location.reload();
+          refetch();
         }}
       />
     </SafeAreaView>

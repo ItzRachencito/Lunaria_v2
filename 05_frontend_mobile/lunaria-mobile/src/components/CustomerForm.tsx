@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -43,6 +43,20 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   onReceiptPress,
   showReceiptButton,
 }) => {
+  // Ensure cartItems is an array
+  const safeCartItems = cartItems || [];
+  
+  // Calculate total
+  const total = safeCartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Collapsible state
+  const [isExpanded, setIsExpanded] = useState(true);
+  
+  // Count total items in cart
+  const totalItems = useMemo(() => 
+    safeCartItems.reduce((sum, item) => sum + item.quantity, 0), 
+    [safeCartItems]
+  );
   const validateForm = () => {
     if (!customerName.trim()) {
       Alert.alert('Error', 'Por favor ingrese el nombre del cliente');
@@ -67,7 +81,31 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Información del Cliente</Text>
+      {/* Collapsible Header */}
+      <TouchableOpacity 
+        style={styles.header} 
+        onPress={() => setIsExpanded(!isExpanded)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.headerContent}>
+          <MaterialIcons 
+            name={isExpanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} 
+            size={24} 
+            color="#333" 
+          />
+          <Text style={styles.headerTitle}>Datos del Cliente</Text>
+          {totalItems > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{totalItems}</Text>
+            </View>
+          )}
+          <Text style={styles.headerTotal}>${total.toFixed(2)}</Text>
+        </View>
+      </TouchableOpacity>
+      
+      {/* Expanded Content */}
+      {isExpanded && (
+        <>
 
       <View style={styles.inputContainer}>
         <MaterialIcons name="person" size={20} color="#666" style={styles.icon} />
@@ -102,11 +140,11 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       {/* Cart Status */}
       <View style={styles.cartContainer}>
         <Text style={styles.cartTitle}>Productos en el carrito:</Text>
-        {cartItems.length === 0 ? (
+        {safeCartItems.length === 0 ? (
           <Text style={styles.emptyCartText}>El carrito está vacío</Text>
         ) : (
           <View style={styles.cartItemsContainer}>
-            {cartItems.slice(0, 3).map((item, index) => (
+            {safeCartItems.slice(0, 3).map((item, index) => (
               <CartItem
                 key={`${item.itemId}-${index}`}
                 item={item}
@@ -114,11 +152,16 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                 onRemove={onRemoveFromCart}
               />
             ))}
-            {cartItems.length > 3 && (
+            {safeCartItems.length > 3 && (
               <Text style={styles.moreItemsText}>
-                +{cartItems.length - 3} productos más...
+                +{safeCartItems.length - 3} productos más...
               </Text>
             )}
+            {/* Total */}
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalLabel}>Total:</Text>
+              <Text style={styles.totalValue}>${total.toFixed(2)}</Text>
+            </View>
           </View>
         )}
       </View>
@@ -142,6 +185,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           </TouchableOpacity>
         )}
       </View>
+        </>
+      )}
     </View>
   );
 };
@@ -157,6 +202,43 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  header: {
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    flex: 1,
+    marginLeft: 8,
+  },
+  headerTotal: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#27ae60',
+  },
+  cartBadge: {
+    backgroundColor: '#e74c3c',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+    paddingHorizontal: 6,
+  },
+  cartBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   title: {
     fontSize: 18,
@@ -236,6 +318,25 @@ const styles = StyleSheet.create({
     color: '#666',
     fontStyle: 'italic',
     marginTop: 8,
+  },
+  totalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  totalValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#28a745',
   },
 });
 

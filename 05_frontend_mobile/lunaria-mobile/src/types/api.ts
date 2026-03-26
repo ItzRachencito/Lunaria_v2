@@ -36,10 +36,14 @@ export interface Item {
   name: string;
   description: string;
   price: number;
+  purchasePrice?: number; // Solo visible para admin
+  installationPrice?: number; // Precio con instalación
   imgUrl?: string;
   stockQuantity: number;
   category: Category;
+  categoryId?: string;
   brand?: Brand;
+  brandId?: string;
   createdAt: string;
   updatedAt: string;
   canDelete?: boolean;

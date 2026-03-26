@@ -1,11 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import {
   View,
-  ScrollView,
   StyleSheet,
   Alert,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { useGetItemsQuery, useGetCategoriesQuery } from '../../api/itemsApi';
 import { useCreateSaleMutation } from '../../api/salesApi';
@@ -20,21 +26,48 @@ const CatalogScreen = () => {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [showReceipt, setShowReceipt] = useState(false);
   const [lastSale, setLastSale] = useState<any>(null);
 
   // API calls
-  const { data: items = [], isLoading: itemsLoading } = useGetItemsQuery();
+  const { data: items = [], isLoading: itemsLoading, refetch: refetchItems } = useGetItemsQuery();
   const { data: categories = [] } = useGetCategoriesQuery();
   const [createSale] = useCreateSaleMutation();
 
-  // Filter items based on selected category
+  // Ensure arrays are defined
+  const safeItems = items || [];
+  const safeCategories = categories || [];
+
+  // Filter items based on selected category and search query
   const filteredItems = useMemo(() => {
-    if (!items || items.length === 0) return [];
-    if (!selectedCategoryId) return items;
-    return items.filter(item => item.category?.categoryId === selectedCategoryId);
-  }, [items, selectedCategoryId]);
+    if (!safeItems || safeItems.length === 0) return [];
+    
+    let filtered = safeItems;
+    
+    // Filter by category
+    if (selectedCategoryId) {
+      filtered = filtered.filter(item => item.category?.categoryId === selectedCategoryId);
+    }
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(item => 
+        item.name?.toLowerCase().includes(query) ||
+        item.brand?.name?.toLowerCase().includes(query) ||
+        item.category?.name?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [safeItems, selectedCategoryId, searchQuery]);
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setSelectedCategoryId(null);
+  };
 
   const handleItemPress = (item: Item) => {
     // Add item to cart or show quantity selector
@@ -107,6 +140,9 @@ const CatalogScreen = () => {
       setLastSale(response);
       setCartItems([]); // Clear cart
       setShowReceipt(true);
+      
+      // Refetch items to update stock
+      refetchItems();
     } catch (error) {
       Alert.alert('Error', 'No se pudo procesar la venta');
       console.error('Sale creation error:', error);
@@ -124,7 +160,11 @@ const CatalogScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <KeyboardAvoidingView 
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Customer Form */}
         <CustomerForm
           customerName={customerName}
@@ -139,9 +179,31 @@ const CatalogScreen = () => {
           showReceiptButton={!!lastSale}
         />
 
+        {/* Search and Filter */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputContainer}>
+            <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Buscar productos..."
+              placeholderTextColor="#999"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <MaterialIcons name="close" size={20} color="#666" />
+              </TouchableOpacity>
+            )}
+          </View>
+          <TouchableOpacity style={styles.clearButton} onPress={handleClearFilters}>
+            <Text style={styles.clearButtonText}>Limpiar</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Category Filter */}
         <CategoryDropdown
-          categories={categories}
+          categories={safeCategories}
           selectedCategoryId={selectedCategoryId}
           onCategorySelect={setSelectedCategoryId}
         />
@@ -151,7 +213,7 @@ const CatalogScreen = () => {
           items={filteredItems || []}
           onItemPress={handleItemPress}
         />
-      </View>
+        </ScrollView>
 
       {/* Receipt Modal */}
       <ReceiptPopup
@@ -160,6 +222,7 @@ const CatalogScreen = () => {
         onClose={handleCloseReceipt}
         onPrint={() => Alert.alert('Imprimir', 'Funcionalidad de impresión')}
       />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -169,8 +232,52 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   content: {
     flex: 1,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  searchInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    height: 40,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+  },
+  clearButton: {
+    marginLeft: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#dc3545',
+    borderRadius: 6,
+  },
+  clearButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });
 

@@ -57,12 +57,6 @@ const ItemCard: React.FC<ItemCardProps> = ({
             Stock: {item.stockQuantity}
           </Text>
         </View>
-
-        {item.category && (
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{item.category.name}</Text>
-          </View>
-        )}
       </View>
     </TouchableOpacity>
   );

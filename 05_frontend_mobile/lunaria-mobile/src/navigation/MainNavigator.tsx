@@ -5,18 +5,19 @@ import { useSelector, useDispatch } from 'react-redux';
 import { TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { RootState } from '../store/store';
-import { logout } from '../store/slices/authSlice';
+import { logoutAndClearCache } from '../store/slices/authSlice';
 
 import DashboardScreen from '../screens/main/DashboardScreen';
 import ExploreScreen from '../screens/main/ExploreScreen';
 import FavoritesScreen from '../screens/main/FavoritesScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
 
-// Admin screens (to be created)
+// Admin screens
 import ManageItemsScreen from '../screens/admin/ManageItemsScreen';
 import ManageBrandsScreen from '../screens/admin/ManageBrandsScreen';
 import ManageCategoriesScreen from '../screens/admin/ManageCategoriesScreen';
 import SaleHistoryScreen from '../screens/admin/SaleHistoryScreen';
+import CatalogScreen from '../screens/admin/CatalogScreen';
 
 // Logout Button Component
 const LogoutButton = () => {
@@ -35,7 +36,7 @@ const LogoutButton = () => {
           text: 'Cerrar Sesión',
           style: 'destructive',
           onPress: () => {
-            dispatch(logout());
+            dispatch(logoutAndClearCache());
             // Navigation will automatically go to login due to auth state change
           },
         },
@@ -66,6 +67,7 @@ export type AdminTabParamList = {
   ManageBrands: undefined;
   ManageCategories: undefined;
   SaleHistory: undefined;
+  Catalog: undefined;
 };
 
 const UserTab = createBottomTabNavigator<UserTabParamList>();
@@ -143,6 +145,8 @@ const AdminNavigator = () => {
             iconName = 'category';
           } else if (route.name === 'SaleHistory') {
             iconName = 'receipt';
+          } else if (route.name === 'Catalog') {
+            iconName = 'shopping-cart';
           }
 
           return <MaterialIcons name={iconName} size={size} color={color} />;
@@ -183,6 +187,11 @@ const AdminNavigator = () => {
         name="SaleHistory"
         component={SaleHistoryScreen}
         options={{ title: 'Ventas' }}
+      />
+      <AdminTab.Screen
+        name="Catalog"
+        component={CatalogScreen}
+        options={{ title: 'Catálogo' }}
       />
     </AdminTab.Navigator>
   );

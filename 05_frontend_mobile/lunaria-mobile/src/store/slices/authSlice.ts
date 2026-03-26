@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../../constants/config';
 import { User, AuthState } from '../../types/api';
+import { apiSlice } from '../../api/baseApi';
 
 const initialState: AuthState = {
   token: null,
@@ -54,5 +55,12 @@ const authSlice = createSlice({
 });
 
 export const { setCredentials, updateUser, logout, setLoading, initializeAuth } = authSlice.actions;
+
+// Thunk for logout that also clears API cache
+export const logoutAndClearCache = () => async (dispatch: any) => {
+  dispatch(logout());
+  // Clear all RTK Query cache (includes favorites since it uses injectEndpoints)
+  dispatch(apiSlice.util.resetApiState());
+};
 
 export default authSlice.reducer;

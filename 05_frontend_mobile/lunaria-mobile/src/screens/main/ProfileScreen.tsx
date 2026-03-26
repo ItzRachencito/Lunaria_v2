@@ -2,14 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
-import { logout } from '../../store/slices/authSlice';
+import { logoutAndClearCache } from '../../store/slices/authSlice';
 
 const ProfileScreen = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutAndClearCache());
   };
 
   return (
@@ -22,18 +22,6 @@ const ProfileScreen = () => {
         </View>
         <Text style={styles.userName}>{user?.name || 'Usuario'}</Text>
         <Text style={styles.userEmail}>{user?.email || 'email@ejemplo.com'}</Text>
-      </View>
-
-      <View style={styles.menuSection}>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>Editar Perfil</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>Historial de Compras</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem}>
-          <Text style={styles.menuText}>Configuración</Text>
-        </TouchableOpacity>
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>

@@ -27,6 +27,8 @@ const ManageItemsScreen = () => {
   const [itemName, setItemName] = useState('');
   const [itemDescription, setItemDescription] = useState('');
   const [itemPrice, setItemPrice] = useState('');
+  const [itemPurchasePrice, setItemPurchasePrice] = useState(''); // Precio de compra (solo admin)
+  const [itemInstallationPrice, setItemInstallationPrice] = useState(''); // Precio con instalación
   const [itemStock, setItemStock] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -35,6 +37,8 @@ const ManageItemsScreen = () => {
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editPrice, setEditPrice] = useState('');
+  const [editPurchasePrice, setEditPurchasePrice] = useState(''); // Precio de compra (solo admin)
+  const [editInstallationPrice, setEditInstallationPrice] = useState(''); // Precio con instalación
   const [editStock, setEditStock] = useState('');
   const [editBrandId, setEditBrandId] = useState('');
   const [editCategoryId, setEditCategoryId] = useState('');
@@ -131,10 +135,15 @@ const ManageItemsScreen = () => {
     }
 
     try {
+      const purchasePriceNum = itemPurchasePrice ? parseFloat(itemPurchasePrice) : undefined;
+      const installationPriceNum = itemInstallationPrice ? parseFloat(itemInstallationPrice) : undefined;
+
       await createItem({
         name: itemName.trim(),
         description: itemDescription.trim(),
         price: price,
+        purchasePrice: purchasePriceNum,
+        installationPrice: installationPriceNum,
         stock: stock,
         brandId: selectedBrand || undefined,
         categoryId: selectedCategory || undefined,
@@ -145,6 +154,8 @@ const ManageItemsScreen = () => {
       setItemName('');
       setItemDescription('');
       setItemPrice('');
+      setItemPurchasePrice('');
+      setItemInstallationPrice('');
       setItemStock('');
       setSelectedBrand('');
       setSelectedCategory('');
@@ -186,6 +197,8 @@ const ManageItemsScreen = () => {
     setEditName(item.name);
     setEditDescription(item.description || '');
     setEditPrice(item.price.toString());
+    setEditPurchasePrice(item.purchasePrice?.toString() || '');
+    setEditInstallationPrice(item.installationPrice?.toString() || '');
     setEditStock(item.stockQuantity.toString());
     setEditBrandId(item.brand?.brandId || '');
     setEditCategoryId(item.category?.categoryId || '');
@@ -198,6 +211,8 @@ const ManageItemsScreen = () => {
     setEditName('');
     setEditDescription('');
     setEditPrice('');
+    setEditPurchasePrice('');
+    setEditInstallationPrice('');
     setEditStock('');
     setEditBrandId('');
     setEditCategoryId('');
@@ -213,6 +228,8 @@ const ManageItemsScreen = () => {
 
     const price = parseFloat(editPrice);
     const stock = parseInt(editStock);
+    const purchasePriceNum = editPurchasePrice ? parseFloat(editPurchasePrice) : undefined;
+    const installationPriceNum = editInstallationPrice ? parseFloat(editInstallationPrice) : undefined;
 
     if (isNaN(price) || price <= 0) {
       Alert.alert('Error', 'El precio debe ser un número positivo');
@@ -231,6 +248,8 @@ const ManageItemsScreen = () => {
           name: editName.trim(),
           description: editDescription.trim(),
           price: price,
+          purchasePrice: purchasePriceNum,
+          installationPrice: installationPriceNum,
           stock: stock,
           brandId: editBrandId || undefined,
           categoryId: editCategoryId || undefined,
@@ -268,6 +287,12 @@ const ManageItemsScreen = () => {
           <Text style={styles.itemName}>{item.name}</Text>
           <Text style={styles.itemDescription}>{item.description}</Text>
           <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+          {item.installationPrice && (
+            <Text style={styles.itemInstallationPrice}>Con instalación: ${item.installationPrice.toFixed(2)}</Text>
+          )}
+          {item.purchasePrice && (
+            <Text style={styles.itemPurchasePrice}>Compra: ${item.purchasePrice.toFixed(2)}</Text>
+          )}
           <Text style={styles.itemStock}>Stock: {item.stockQuantity}</Text>
           {item.brand && (
             <Text style={styles.itemBrand}>Marca: {item.brand.name}</Text>
@@ -333,6 +358,24 @@ const ManageItemsScreen = () => {
               placeholder="Precio"
               value={itemPrice}
               onChangeText={setItemPrice}
+              keyboardType="numeric"
+              placeholderTextColor="#666"
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Precio de compra (proveedor) - Solo Admin"
+              value={itemPurchasePrice}
+              onChangeText={setItemPurchasePrice}
+              keyboardType="numeric"
+              placeholderTextColor="#666"
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Precio con instalación (mano de obra)"
+              value={itemInstallationPrice}
+              onChangeText={setItemInstallationPrice}
               keyboardType="numeric"
               placeholderTextColor="#666"
             />
@@ -486,6 +529,24 @@ const ManageItemsScreen = () => {
                 placeholder="Precio"
                 value={editPrice}
                 onChangeText={setEditPrice}
+                keyboardType="numeric"
+                placeholderTextColor="#666"
+              />
+
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Precio de compra (proveedor) - Solo Admin"
+                value={editPurchasePrice}
+                onChangeText={setEditPurchasePrice}
+                keyboardType="numeric"
+                placeholderTextColor="#666"
+              />
+
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Precio con instalación (mano de obra)"
+                value={editInstallationPrice}
+                onChangeText={setEditInstallationPrice}
                 keyboardType="numeric"
                 placeholderTextColor="#666"
               />
@@ -742,6 +803,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#28a745',
+    marginBottom: 2,
+  },
+  itemInstallationPrice: {
+    fontSize: 14,
+    color: '#17a2b8', // info color
+    marginBottom: 2,
+  },
+  itemPurchasePrice: {
+    fontSize: 14,
+    color: '#ffc107', // warning color
     marginBottom: 2,
   },
   itemStock: {

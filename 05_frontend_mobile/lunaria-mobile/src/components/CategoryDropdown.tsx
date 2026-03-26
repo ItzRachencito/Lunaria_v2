@@ -29,7 +29,10 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const selectedCategory = categories.find(cat => cat.categoryId === selectedCategoryId);
+  // Ensure categories is an array
+  const safeCategories = categories || [];
+
+  const selectedCategory = safeCategories.find(cat => cat.categoryId === selectedCategoryId);
 
   const handleCategorySelect = (categoryId: string | null) => {
     onCategorySelect(categoryId);
@@ -91,14 +94,16 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
             </View>
 
             <FlatList
-              data={[
-                { categoryId: null, name: 'Todas las categorías' },
-                ...categories.map(cat => ({
-                  categoryId: cat.categoryId,
-                  name: cat.name,
-                  description: cat.description,
-                })),
-              ] as DropdownItem[]}
+              data={
+                [
+                  { categoryId: null, name: 'Todas las categorías' },
+                  ...safeCategories.map((cat) => ({
+                    categoryId: cat.categoryId,
+                    name: cat.name,
+                    description: cat.description,
+                  })),
+                ] as DropdownItem[]
+              }
               keyExtractor={(item) => item.categoryId || 'all'}
               renderItem={renderCategoryItem}
               showsVerticalScrollIndicator={false}

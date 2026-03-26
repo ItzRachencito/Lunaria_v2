@@ -41,6 +41,25 @@ const ReceiptPopup: React.FC<ReceiptPopupProps> = ({
   onClose,
   onPrint,
 }) => {
+  // Ensure orderDetails and items are defined
+  // Ensure orderDetails and items are defined
+  const safeOrderDetails = orderDetails || {
+    saleId: '',
+    customerName: '',
+    phoneNumber: '',
+    items: [],
+    subtotal: 0,
+    grandTotal: 0,
+    paymentMethod: '',
+    createdAt: '',
+  };
+  const safeItems = safeOrderDetails.items || [];
+  
+  // Helper function to safely format numbers
+  const formatPrice = (value: number | undefined | null) => {
+    if (value === undefined || value === null) return '0.00';
+    return value.toFixed(2);
+  };
   const handlePrint = () => {
     Alert.alert(
       'Imprimir Comprobante',
@@ -71,28 +90,28 @@ const ReceiptPopup: React.FC<ReceiptPopupProps> = ({
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             <View style={styles.detailRow}>
               <Text style={styles.label}>ID de Venta:</Text>
-              <Text style={styles.value}>{orderDetails.saleId}</Text>
+              <Text style={styles.value}>{safeOrderDetails.saleId}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.label}>Cliente:</Text>
-              <Text style={styles.value}>{orderDetails.customerName}</Text>
+              <Text style={styles.value}>{safeOrderDetails.customerName}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.label}>Teléfono:</Text>
-              <Text style={styles.value}>{orderDetails.phoneNumber}</Text>
+              <Text style={styles.value}>{safeOrderDetails.phoneNumber}</Text>
             </View>
 
             <View style={styles.divider} />
 
             <Text style={styles.sectionTitle}>Productos</Text>
 
-            {orderDetails.items.map((item, index) => (
+            {safeItems.map((item: any, index: number) => (
               <View key={index} style={styles.itemRow}>
                 <Text style={styles.itemName}>{item.name}</Text>
                 <Text style={styles.itemQuantity}>x{item.quantity}</Text>
-                <Text style={styles.itemPrice}>${(item.price * item.quantity).toFixed(2)}</Text>
+                <Text style={styles.itemPrice}>${formatPrice(item.price * item.quantity)}</Text>
               </View>
             ))}
 
@@ -100,18 +119,18 @@ const ReceiptPopup: React.FC<ReceiptPopupProps> = ({
 
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Subtotal:</Text>
-              <Text style={styles.totalValue}>${orderDetails.subtotal.toFixed(2)}</Text>
+              <Text style={styles.totalValue}>${formatPrice(safeOrderDetails.subtotal)}</Text>
             </View>
 
             <View style={styles.totalRow}>
               <Text style={styles.grandTotalLabel}>Total:</Text>
-              <Text style={styles.grandTotalValue}>${orderDetails.grandTotal.toFixed(2)}</Text>
+              <Text style={styles.grandTotalValue}>${formatPrice(safeOrderDetails.grandTotal)}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text style={styles.label}>Método de Pago:</Text>
               <Text style={styles.value}>
-                {orderDetails.paymentMethod === 'CASH' ? 'Efectivo' : orderDetails.paymentMethod}
+                {safeOrderDetails.paymentMethod === 'CASH' ? 'Efectivo' : safeOrderDetails.paymentMethod}
               </Text>
             </View>
           </ScrollView>

@@ -1,6 +1,5 @@
 export const API_CONFIG = {
-  BASE_URL: 'http://10.50.208.83:9090/api/v1.0', // Android emulator localhost
-  // BASE_URL: 'http://localhost:8080', // iOS simulator
+  BASE_URL: 'https://lunariav2-production.up.railway.app/api/v1.0',
   TIMEOUT: 10000,
 };
 

@@ -1,34 +1,61 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
+import { useGetUserFavoritesQuery } from '../../api/favoritesApi';
+import { useGetItemsQuery } from '../../api/itemsApi';
+import { useGetLatestSalesQuery } from '../../api/baseApi';
+import { useNavigation } from '@react-navigation/native';
 
 const DashboardScreen = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const isAdmin = user?.role === 'ROLE_ADMIN';
+  const navigation = useNavigation();
+  
+  // Fetch user favorites count
+  const { data: favorites = [] } = useGetUserFavoritesQuery();
+  const favoritesCount = favorites.length;
+  
+  // Fetch all items and calculate total stock
+  const { data: items = [] } = useGetItemsQuery();
+  const totalStock = items.reduce((sum, item) => sum + (item.stockQuantity || 0), 0);
+  const totalProducts = items.length;
+  
+  // Fetch sales for today
+  const { data: sales = [] } = useGetLatestSalesQuery();
+  const today = new Date().toISOString().split('T')[0];
+  const todaySales = sales.filter(sale => sale.createdAt && sale.createdAt.startsWith(today));
+  const todaySalesCount = todaySales.length;
+  const todaySalesTotal = todaySales.reduce((sum, sale) => sum + (sale.grandTotal || 0), 0);
 
   const UserDashboard = () => (
     <>
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
-          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statNumber}>{favoritesCount}</Text>
           <Text style={styles.statLabel}>Productos Favoritos</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Compras Realizadas</Text>
+          <Text style={styles.statNumber}>{totalStock}</Text>
+          <Text style={styles.statLabel}>Ítems Disponibles</Text>
         </View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
         <View style={styles.quickActions}>
-          <View style={[styles.actionButton, styles.exploreButton]}>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.exploreButton]}
+            onPress={() => navigation.navigate('Explore' as never)}
+          >
             <Text style={styles.actionText}>Explorar Productos</Text>
-          </View>
-          <View style={[styles.actionButton, styles.favoritesButton]}>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.favoritesButton]}
+            onPress={() => navigation.navigate('Favorites' as never)}
+          >
             <Text style={styles.actionText}>Ver Favoritos</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     </>
@@ -38,24 +65,30 @@ const DashboardScreen = () => {
     <>
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
-          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statNumber}>{totalProducts}</Text>
           <Text style={styles.statLabel}>Productos Totales</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Ventas del Día</Text>
+          <Text style={styles.statNumber}>${todaySalesTotal.toFixed(2)}</Text>
+          <Text style={styles.statLabel}>Ventas del Día ({todaySalesCount})</Text>
         </View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Panel de Administración</Text>
         <View style={styles.adminActions}>
-          <View style={[styles.actionButton, styles.adminButton]}>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.adminButton]}
+            onPress={() => navigation.navigate('ManageItems' as never)}
+          >
             <Text style={styles.actionText}>Gestionar Productos</Text>
-          </View>
-          <View style={[styles.actionButton, styles.adminButton]}>
-            <Text style={styles.actionText}>Ver Reportes</Text>
-          </View>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.adminButton]}
+            onPress={() => navigation.navigate('SaleHistory' as never)}
+          >
+            <Text style={styles.actionText}>Ventas Recientes</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </>

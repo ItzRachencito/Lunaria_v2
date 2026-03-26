@@ -15,7 +15,7 @@ interface CategoryResponse {
   categoryId: string;
   name: string;
   description: string;
-  imageUrl?: string;
+  imgUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,7 +49,7 @@ export const categoriesApi = createApi({
           categoryId: category.categoryId,
           name: category.name,
           description: category.description,
-          imgUrl: category.imageUrl,
+          imgUrl: category.imgUrl,
           createdAt: category.createdAt,
           updatedAt: category.updatedAt,
         })),
@@ -94,7 +94,7 @@ export const categoriesApi = createApi({
         categoryId: response.categoryId,
         name: response.name,
         description: response.description,
-        imgUrl: response.imageUrl,
+        imgUrl: response.imgUrl,
         createdAt: response.createdAt,
         updatedAt: response.updatedAt,
       }),
@@ -112,7 +112,7 @@ export const categoriesApi = createApi({
         categoryId: response.categoryId,
         name: response.name,
         description: response.description,
-        imgUrl: response.imageUrl,
+        imgUrl: response.imgUrl,
         createdAt: response.createdAt,
         updatedAt: response.updatedAt,
       }),

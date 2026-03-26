@@ -59,6 +59,8 @@ export const apiSlice = createApi({
       name: string;
       description: string;
       price: number;
+      purchasePrice?: number; // Precio de compra al proveedor (solo admin)
+      installationPrice?: number; // Precio con instalación (mano de obra)
       stock: number;
       brandId?: string;
       categoryId?: string;
@@ -68,7 +70,7 @@ export const apiSlice = createApi({
         const formData = new FormData();
 
         // Create the item JSON string
-        const itemData = {
+        const itemData: any = {
           name: item.name,
           description: item.description,
           price: item.price,
@@ -76,6 +78,16 @@ export const apiSlice = createApi({
           brandId: item.brandId || null,
           categoryId: item.categoryId || null,
         };
+
+        // Add purchasePrice if provided (only for admin)
+        if (item.purchasePrice && item.purchasePrice > 0) {
+          itemData.purchasePrice = item.purchasePrice;
+        }
+
+        // Add installationPrice if provided
+        if (item.installationPrice && item.installationPrice > 0) {
+          itemData.installationPrice = item.installationPrice;
+        }
 
         formData.append('item', JSON.stringify(itemData));
 
@@ -108,6 +120,8 @@ export const apiSlice = createApi({
         name: string;
         description: string;
         price: number;
+        purchasePrice?: number;
+        installationPrice?: number;
         stock: number;
         brandId?: string;
         categoryId?: string;

@@ -17,6 +17,9 @@ interface ItemsListProps {
 }
 
 const ItemsList: React.FC<ItemsListProps> = ({ items, onItemPress }) => {
+  // Ensure items is an array
+  const safeItems = items || [];
+  
   const renderItem = ({ item }: { item: Item }) => (
     <TouchableOpacity
       style={styles.itemCard}
@@ -73,11 +76,11 @@ const ItemsList: React.FC<ItemsListProps> = ({ items, onItemPress }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>
-        Productos ({items.length})
+        Productos ({safeItems.length})
       </Text>
 
       <FlatList
-        data={items}
+        data={safeItems}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         ListEmptyComponent={renderEmpty}
